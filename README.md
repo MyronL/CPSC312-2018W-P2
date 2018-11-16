@@ -1,0 +1,2 @@
+# CPSC312-2018W-P2
+Project 2 for CPSC312 2018W
