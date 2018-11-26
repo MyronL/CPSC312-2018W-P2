@@ -1,24 +1,5 @@
 use_module(library(clpfd)).
 
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Standard Connect4 board is 7 pieces wide, 6 pieces tall.
-(set absolute minimum dimensions if possible)
-
-
-The game board is a list of columns
-
-Each column is a term col(Num,Free,TP,TN,P), with:
-- Num: column number Num
-- boolean Free: whether a piece can be placed "on top" (= at the end)
-- TP: colour of topmost piece: TP
-- TN: max. number of consecutive topmost pieces of same colour
-- P: List of pieces in this column (bot to top?)
-
-Pieces are either
-empty cell:   '-', empty 
-piece of red player:   'X', red
-piece of blue player:   'O', blue
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
 % Empty Cell:
@@ -30,6 +11,7 @@ col(_,true,empty,0,[]).
 
 % Empty Board:
 % - 
+/*
 initBoard :-
     col(1,true,empty,0,[]),
     col(2,true,empty,0,[]),
@@ -38,8 +20,10 @@ initBoard :-
     col(5,true,empty,0,[]),
     col(6,true,empty,0,[]),
     col(7,true,empty,0,[]).
+*/
 
 
+/*
 boardState :-
     col(1,Free,TP,TN,[Bot|Top]),
     col(2,Free,TP,TN,[Bot|Top]),
@@ -48,7 +32,7 @@ boardState :-
     col(5,Free,TP,TN,[Bot|Top]),
     col(6,Free,TP,TN,[Bot|Top]),
     col(7,Free,TP,TN,[Bot|Top]).
-
+*/
 
 
 
