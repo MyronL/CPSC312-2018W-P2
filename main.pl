@@ -62,19 +62,30 @@ mainOptionsScreen :- nl,
 	print('START MENU:'),
     nl,  
     nl,       
-    print('Player VS Player [ Press 1 ]'),
+    print('Player VS Player [ Enter 1 ]'),
     nl, 
-    print('Player VS AI [ Press 2 ]'),
+    print('Player VS AI [ Enter 2 ]'),
     nl, 
-    print('Exit [ Press any other key ]'),
+    print('Exit [ Enter any other key ]'),
     nl.    
      
 
 play :- welcomeScreen, 
     nl,
     mainOptionsScreen,
-    % TODO: PAUSE FOR USER INPUT HERE
-    nl.   
+    nl,
+    read(X),
+    play_mode(X).
+
+play_mode(1) :- print('Playing against your friend'),
+    nl,
+    print('Press any key to continue'),
+    nl.
+play_mode(2) :- print('Playing against AI'),
+    nl,
+    print('Press any key to continue'),
+    nl.
+play_mode(_) :- print('Good bye').
 
 /*
 Pieces are either
