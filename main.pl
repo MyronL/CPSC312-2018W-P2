@@ -107,8 +107,8 @@ flipPlayer North = South
 flipPlayer South = North
 */
 
-flipPlayer(red) :- player(blue).
-flipPlayer(blue) :- player(red).
+flipPlayer(red) :- blue.
+flipPlayer(blue) :- red.
 
 /*
 
@@ -247,23 +247,23 @@ play_mode(1) :- print('Playing against your friend'),
     read(_),
     displayBoardExample,
     nl,
-    gameTurn(Board, player(red)).
+    gameTurn(initBoardExample, red).
 play_mode(2) :- print('Playing against AI'),
     nl,
     print('Press any key to continue'), %TODO replace for real game board
     read(_),
     displayBoardExample, %TODO replace for real game board
-    nl,
-    gameTurn(Board, player(red)).    
+    nl.
+ %   gameTurn(initBoardExample, red).    
 play_mode(_) :- print('Good bye').
 
 
-gameTurn(Board, Player) :- 
-    win(Board, Player), 
-    write(Player), write(' Wins!').
-gameTurn(Board, Player) :- 
-    full(Board), 
-    write('It\'s a Draw!').
+%gameTurn(Board, Player) :- 
+%    win(Board, Player), 
+%    write(Player), write(' Wins!').
+%gameTurn(Board, _) :- 
+%    full(Board), 
+%    write('It\'s a Draw!').
 gameTurn(Board, Player) :-
     write(Player),
     write(' player\'s turn:'),
@@ -272,20 +272,21 @@ gameTurn(Board, Player) :-
     nl,
     %TODO: display list of available moves here
     %ONLY list of moves, or concede, 
-    % are available to players. 
-    getMove(Player), %TODO: this gets user kb input as move or concede
-    userMove(Board, Move, BoardAfter),
+    % are available to players.
+    read(_), 
+%    getMove(Player, Move), %TODO: this gets user kb input as move or concede
+%    userMove(Board, Move, BoardAfter),
     %displayBoard(BoardAfter),
     displayBoardExample, %TODO replace for real game board
-    gameTurn(Board, flipPlayer(Player)).
+    gameTurn(BoardAfter1, flipPlayer(Player)).
 
 
-win(Board, Player) :- Board, Player. %STUB
-full(Board) :- Board. %STUB
+%win(Board, Player) :- Board, Player. %STUB
+%full(Board) :- Board. %STUB
 
-getMove(Player, Move) :- Player, Move. %STUB %TODO: this gets user kb input as move or concede
-userMove(Board, Move, BoardAfter):- 
-    Board, Move, BoardAfter. %STUB
+%getMove(Player, Move) :- Player, Move. %STUB %TODO: this gets user kb input as move or concede
+%userMove(Board, Move, BoardAfter):- 
+%    Board, Move, BoardAfter. %STUB
 
 %shows all possible columns a player can drop a piece in
 %allValidUserMoves(Board, Player, ListOfCols) :- 
