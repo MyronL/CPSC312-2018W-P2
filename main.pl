@@ -2,27 +2,12 @@ use_module(library(clpfd)).
 
 
 
-% Empty Cell:
-empty(-).
-
-/*
-   Each column is a term col(Num,Free,TP,TN,Ps), where:
-      Num: column number
-      Free: yes/no, whether a piece can be placed "on top" (= at the end)
-      TP: Colour of topmost piece
-      TN: max. number of consecutive topmost pieces of same colour
-      L: current num. of pieces in column
-      Ps: Pieces in this column
- */ 
-
-% Empty Column:
-col(_,true,empty,0,0,[]).
 
 
 % Empty Board:
 % - 
 
-
+/*
 initBoard :-
     col(1,true,empty,0,0,[empty,empty,empty,empty,empty,empty]),
     col(2,true,empty,0,0,[empty,empty,empty,empty,empty,empty]),
@@ -31,7 +16,7 @@ initBoard :-
     col(5,true,empty,0,0,[empty,empty,empty,empty,empty,empty]),
     col(6,true,empty,0,0,[empty,empty,empty,empty,empty,empty]),
     col(7,true,empty,0,0,[empty,empty,empty,empty,empty,empty]).
-
+*/
 /*
 initState(col(1,true,empty,0,0,[]),
           col(2,true,empty,0,0,[]),
@@ -167,6 +152,26 @@ square(col(5),row(_),x).
 square(col(6),row(_),x).
 square(col(7),row(_),x).
 
+fullcol(col(X), 
+        square(col(X),row(1),_),
+        square(col(X),row(2),_),
+        square(col(X),row(3),_),
+        square(col(X),row(4),_),
+        square(col(X),row(5),_),
+        square(col(X),row(6),_)
+        ).
+
+fullrow(row(Y),
+        square(col(1),row(Y),_),
+        square(col(2),row(Y),_),
+        square(col(3),row(Y),_),
+        square(col(4),row(Y),_),
+        square(col(5),row(Y),_),
+        square(col(6),row(Y),_),
+        square(col(7),row(Y),_)
+        ).
+
+
 red.
 blue.
 empty.
@@ -235,18 +240,81 @@ play :- welcomeScreen,
     read(X),
     play_mode(X).
 
+
 play_mode(1) :- print('Playing against your friend'),
     nl,
     print('Press any key to continue'),
-    nl.
+    read(_),
+    displayBoardExample,
+    nl,
+    gameTurn(Board, player(red)).
 play_mode(2) :- print('Playing against AI'),
     nl,
-    print('Press any key to continue'),
-    nl.
+    print('Press any key to continue'), %TODO replace for real game board
+    read(_),
+    displayBoardExample, %TODO replace for real game board
+    nl,
+    gameTurn(Board, player(red)).    
 play_mode(_) :- print('Good bye').
 
 
+gameTurn(Board, Player) :- 
+    win(Board, Player), 
+    write(Player), write(' Wins!').
+gameTurn(Board, Player) :- 
+    full(Board), 
+    write('It\'s a Draw!').
+gameTurn(Board, Player) :-
+    write(Player),
+    write(' player\'s turn:'),
+    nl,
+    write('Moves Available:'),
+    nl,
+    %TODO: display list of available moves here
+    %ONLY list of moves, or concede, 
+    % are available to players. 
+    getMove(Player), %TODO: this gets user kb input as move or concede
+    userMove(Board, Move, BoardAfter),
+    %displayBoard(BoardAfter),
+    displayBoardExample, %TODO replace for real game board
+    gameTurn(Board, flipPlayer(Player)).
 
+
+win(Board, Player) :- Board, Player. %STUB
+full(Board) :- Board. %STUB
+
+getMove(Player, Move) :- Player, Move. %STUB %TODO: this gets user kb input as move or concede
+userMove(Board, Move, BoardAfter):- 
+    Board, Move, BoardAfter. %STUB
+
+%shows all possible columns a player can drop a piece in
+%allValidUserMoves(Board, Player, ListOfCols) :- 
+ 
+/*
+    integer(N),
+    N >= 1,
+    N =< 7,
+    nth1(N, Board, C),
+    valid_move_column(C).
+valid_move_column([H|_]) :- H = '-'.
+*/
+
+% Insert a piece to board
+insert(Board, Player, Col, BoardAfter) :-
+    nth1(Col, Board, C), % gives us the desired Column of Board as C
+    insertToCol(C, Player, CAfter),
+    updateBoard(Board, Col, CAfter, BoardAfter).
+
+
+% Insert a piece into a specificed column
+insertToCol(['-',X|T], Colour, [Colour,X|T]) :- \+X = '-'.
+insertToCol(['-'], Colour, [Colour]).
+insertToCol([H|T], Colour, [H|R]) :- insertToCol(T, Colour, R).
+
+
+
+
+/*
 %play_player(Board)
 %play_player(Board)
 %play_player(Board)
@@ -264,7 +332,7 @@ play_player(Board) :-
 %    insert_piece(Board, o, N, BoardO),
 %    display_board(BoardO),
     play_player(BoardO).
-
+*/
 
 %insert_piece(Board, Colour, Column, BoardX).
 
@@ -282,6 +350,16 @@ exampleBoard :-
     col(6,true,empty,0,[empty,empty,empty,empty,empty,empty]),
     col(7,true,empty,0,[empty,empty,empty,empty,empty,empty]).
 
+
+initBoardExample :- [
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_']
+                    ].
 
 displayBoardExample :- 
     print(' |_|_|_|_|_|_|_| '),
