@@ -76,13 +76,16 @@ move(concede).
 %-- a Player takes the current state of the game and returns a move
 type Player = State -> Move
 type IOPlayer = State -> IO Move
-
--- PlayerType is the two players in the game
-data PlayerType = North | South
-  deriving (Eq, Show)
 */
+
+%-- PlayerType is the two players in the game
+%data PlayerType = North | South
+%  deriving (Eq, Show)
+
 playerType(red).
 playerType(blue).
+player(blue).
+player(red).
 
 
 /*
@@ -93,6 +96,7 @@ flipPlayer South = North
 */
 
 flipPlayer(red) :- player(blue).
+flipPlayer(blue) :- player(red).
 
 /*
 
@@ -191,9 +195,8 @@ play :- welcomeScreen,
 
 play_mode(1) :- print('Playing against your friend'),
     nl,
-    initBoard(B),
-    play_player(B).
-
+    print('Press any key to continue'),
+    nl.
 play_mode(2) :- print('Playing against AI'),
     nl,
     print('Press any key to continue'),
@@ -201,15 +204,18 @@ play_mode(2) :- print('Playing against AI'),
 play_mode(_) :- print('Good bye').
 
 
+
 %play_player(Board)
 %play_player(Board)
 %play_player(Board)
 play_player(Board) :-
+    displayBoardExample,
     print('Player X turn:'),
     nl,
     read(N),
 %    insert_piece(Board, x, N, BoardX),
 %    display_board(BoardN),
+    displayBoardExample, 
     print('Player O turn:'),
     nl,
     read(N),
@@ -225,10 +231,32 @@ displayPiece(empty) :- print('-').
 displayPiece(red) :- print('X').
 displayPiece(blue) :- print('O').
 
+displayBoardExample :- 
+    print(' |_|_|_|_|_|_|_| '),
+    nl,    
+    print(' |_|_|_|_|_|_|_| '),
+    nl,    
+    print(' |_|_|_|_|_|_|_| '),
+    nl,    
+    print(' |_|_|_|_|_|_|_| '),
+    nl,    
+    print(' |_|_|_|_|_|_|_| '),
+    nl,    
+    print(' |_|_|_|_|_|_|_| ').
 
- 
+% display board row by row (?)
+%displayBoard
+
+displayRow(row(Y)) :- 
+    print(' |'),         
+    % TODO: display all pieces in a single row  
+    print('| ').
+
+%displaySquares(square(col(7),row(Y))) :-
     
-   
+displaySquares(square(col(X),row(Y))) :- 
+    
+    displaySquares(square(col(X+1),row(Y))).
 
     /*
 */
