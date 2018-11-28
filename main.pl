@@ -191,13 +191,34 @@ play :- welcomeScreen,
 
 play_mode(1) :- print('Playing against your friend'),
     nl,
-    print('Press any key to continue'),
-    nl.
+    initBoard(B),
+    play_player(B).
+
 play_mode(2) :- print('Playing against AI'),
     nl,
     print('Press any key to continue'),
     nl.
 play_mode(_) :- print('Good bye').
+
+
+%play_player(Board)
+%play_player(Board)
+%play_player(Board)
+play_player(Board) :-
+    print('Player X turn:'),
+    nl,
+    read(N),
+%    insert_piece(Board, x, N, BoardX),
+%    display_board(BoardN),
+    print('Player O turn:'),
+    nl,
+    read(N),
+%    insert_piece(Board, o, N, BoardO),
+%    display_board(BoardO),
+    play_player(BoardO).
+
+
+%insert_piece(Board, Colour, Column, BoardX).
 
 
 displayPiece(empty) :- print('-').
