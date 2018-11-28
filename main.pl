@@ -110,6 +110,7 @@ flipPlayer South = North
 flipPlayer(red) :- blue.
 flipPlayer(blue) :- red.
 
+
 /*
 
 %Pieces are either
@@ -264,8 +265,9 @@ play_mode(_) :- print('Good bye').
 %gameTurn(Board, _) :- 
 %    full(Board), 
 %    write('It\'s a Draw!').
-gameTurn(Board, Player) :-
-    write(Player),
+gameTurn(Board, red) :-
+    nl,
+    write(red),
     write(' player\'s turn:'),
     nl,
     write('Moves Available:'),
@@ -278,7 +280,37 @@ gameTurn(Board, Player) :-
 %    userMove(Board, Move, BoardAfter),
     %displayBoard(BoardAfter),
     displayBoardExample, %TODO replace for real game board
-    gameTurn(BoardAfter1, flipPlayer(Player)).
+    gameTurn(BoardAfter1, blue).
+
+
+gameTurn(Board, blue) :-
+    nl,
+    write(blue),
+    write(' player\'s turn:'),
+    nl,
+    write('Moves Available:'),
+    nl,
+    %TODO: display list of available moves here
+    %ONLY list of moves, or concede, 
+    % are available to players.
+    read(_), 
+%    getMove(Player, Move), %TODO: this gets user kb input as move or concede
+%    userMove(Board, Move, BoardAfter),
+    %displayBoard(BoardAfter),
+    displayBoardExample, %TODO replace for real game board
+    gameTurn(BoardAfter1, red).
+
+
+%USE THIS
+getListOfAvailMoves(Board, ListTotal) :-
+    nth1(N,Board,Col),  %get nth col from board
+    member('_', Col),  %incl if col has empties in it
+    append(N,List,ListTotal). %incl N if its a col w/ empties in it
+
+
+%TODO
+%getMove(Player, Move, ListOfMoves)
+%%getMove(Player, Move, Concede) Concede: qq, QQ, Qq, qQ
 
 
 %win(Board, Player) :- Board, Player. %STUB
@@ -301,6 +333,28 @@ valid_move_column([H|_]) :- H = '-'.
 */
 
 % Insert a piece to board
+/* NOT THIS ONE
+insert(Board, Player, ColNum, BoardAfter) :-
+    insertToCol(
+        col(Col, ColNum,true,_,_,_,_),
+        Player, CAfter),
+    updateBoard(Board, Col, CAfter, BoardAfter).
+
+insertToCol(Col, ColNum, Player, CAfter) :- 
+    col(ColNum,true,empty,0,0,[empty,empty,empty,empty,empty,empty]).
+*/
+
+
+
+%%update_board([H|T], 1, C, [C|T]).
+%update_board([H|T], N, C, [H|R]) :- 
+%   N2 is N-1, update_board(T, N2, C, R).
+
+%updateBoard(Board, Col, CAfter, BoardAfter) :-
+    
+
+/*
+% Insert a piece to board
 insert(Board, Player, Col, BoardAfter) :-
     nth1(Col, Board, C), % gives us the desired Column of Board as C
     insertToCol(C, Player, CAfter),
@@ -311,7 +365,7 @@ insert(Board, Player, Col, BoardAfter) :-
 insertToCol(['-',X|T], Colour, [Colour,X|T]) :- \+X = '-'.
 insertToCol(['-'], Colour, [Colour]).
 insertToCol([H|T], Colour, [H|R]) :- insertToCol(T, Colour, R).
-
+*/
 
 
 
@@ -352,6 +406,40 @@ exampleBoard :-
     col(7,true,empty,0,[empty,empty,empty,empty,empty,empty]).
 
 
+/*
+   Each column is a term col(Num,Free,TP,TN,PC,Ps), where:
+      Num: column number
+      Free: yes/no, whether a piece can be placed "on top" (= at the end)
+      TP: Colour of topmost piece
+      TN: max. number of consecutive topmost pieces of same colour
+      PC: Piece Count
+      Ps: List Pieces in this column
+ */ 
+
+/*
+initBoardExample :- [
+    col(1,true,empty,0,0,['_', '_', '_', '_', '_', '_']),
+    col(2,true,empty,0,0,['_', '_', '_', '_', '_', '_']),
+    col(3,true,empty,0,0,['_', '_', '_', '_', '_', '_']),
+    col(4,true,empty,0,0,['_', '_', '_', '_', '_', '_']),
+    col(5,true,empty,0,0,['_', '_', '_', '_', '_', '_']),
+    col(6,true,empty,0,0,['_', '_', '_', '_', '_', '_']),
+    col(7,true,empty,0,0,['_', '_', '_', '_', '_', '_'])
+                    ].
+*/
+
+initBoard :- initBoardFull.
+initBoardFull(                   
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_']
+                    ).
+
+/*    
 initBoardExample :- [
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_'],
@@ -361,7 +449,9 @@ initBoardExample :- [
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_']
                     ].
-
+*/
+    
+    
 displayBoardExample :- 
     print(' |_|_|_|_|_|_|_| '),
     nl,    
