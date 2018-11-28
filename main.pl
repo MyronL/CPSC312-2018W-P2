@@ -280,7 +280,7 @@ displaySquares(col(7),row(Y)) :-
     write(Piece),
     write('|').
 displaySquares(col(X),row(Y)) :-
-    square(col(7),row(Y),Piece),
+    square(col(X),row(Y),Piece),
     write(Piece),
     write('|'),
     X1 is X + 1,
