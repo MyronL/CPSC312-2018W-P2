@@ -133,14 +133,58 @@ square(col(_),row(_)) :- empty.
 square(col(_),row(_)) :- red.
 square(col(_),row(_)) :- blue.
 */
-% test data
+% test row
+/*
 square(col(1),row(_),x).
 square(col(2),row(_),x).
 square(col(3),row(_),o).
 square(col(4),row(_),o).
 square(col(5),row(_),x).
-square(col(6),row(_),x).
+square(col(6),row(_),'-').
 square(col(7),row(_),x).
+*/
+square(col(1),row(1),x).
+square(col(2),row(1),x).
+square(col(3),row(1),o).
+square(col(4),row(1),o).
+square(col(5),row(1),x).
+square(col(6),row(1),x).
+square(col(7),row(1),x).
+square(col(1),row(2),x).
+square(col(2),row(2),x).
+square(col(3),row(2),o).
+square(col(4),row(2),o).
+square(col(5),row(2),x).
+square(col(6),row(2),x).
+square(col(7),row(2),x).
+square(col(1),row(3),x).
+square(col(2),row(3),x).
+square(col(3),row(3),o).
+square(col(4),row(3),o).
+square(col(5),row(3),x).
+square(col(6),row(3),x).
+square(col(7),row(3),x).
+square(col(1),row(4),x).
+square(col(2),row(4),x).
+square(col(3),row(4),o).
+square(col(4),row(4),o).
+square(col(5),row(4),x).
+square(col(6),row(4),x).
+square(col(7),row(4),x).
+square(col(1),row(5),x).
+square(col(2),row(5),x).
+square(col(3),row(5),o).
+square(col(4),row(5),o).
+square(col(5),row(5),x).
+square(col(6),row(5),x).
+square(col(7),row(5),x).
+square(col(1),row(6),x).
+square(col(2),row(6),x).
+square(col(3),row(6),o).
+square(col(4),row(6),o).
+square(col(5),row(6),x).
+square(col(6),row(6),x).
+square(col(7),row(6),x).
 
 red.
 blue.
@@ -270,6 +314,13 @@ displayBoardExample :-
     print(' |_|_|_|_|_|_|_| ').
 
 % display board row by row (?)
+displayBoard(row(6)) :-
+    displayRow(row(6)).
+displayBoard(row(Y)) :-
+    displayRow(row(Y)),
+    nl,
+    Y1 is Y+1,
+    displayBoard(row(Y1)).
 
 displayRow(row(Y)) :- 
     write(' |'),         
