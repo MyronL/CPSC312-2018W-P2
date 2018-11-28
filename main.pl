@@ -3,7 +3,7 @@ use_module(library(clpfd)).
 
 
 % Empty Cell:
-%empty(-).
+empty(-).
 
 /*
    Each column is a term col(Num,Free,TP,TN,Ps), where:
@@ -11,35 +11,53 @@ use_module(library(clpfd)).
       Free: yes/no, whether a piece can be placed "on top" (= at the end)
       TP: Colour of topmost piece
       TN: max. number of consecutive topmost pieces of same colour
+      L: current num. of pieces in column
       Ps: Pieces in this column
  */ 
 
 % Empty Column:
-col(_,true,empty,0,[]).
+col(_,true,empty,0,0,[]).
+
 
 % Empty Board:
 % - 
 
+
 initBoard :-
-    col(1,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(2,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(3,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(4,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(5,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(6,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(7,true,empty,0,[empty,empty,empty,empty,empty,empty]).
-
-
+    col(1,true,empty,0,0,[empty,empty,empty,empty,empty,empty]),
+    col(2,true,empty,0,0,[empty,empty,empty,empty,empty,empty]),
+    col(3,true,empty,0,0,[empty,empty,empty,empty,empty,empty]),
+    col(4,true,empty,0,0,[empty,empty,empty,empty,empty,empty]),
+    col(5,true,empty,0,0,[empty,empty,empty,empty,empty,empty]),
+    col(6,true,empty,0,0,[empty,empty,empty,empty,empty,empty]),
+    col(7,true,empty,0,0,[empty,empty,empty,empty,empty,empty]).
 
 /*
+initState(col(1,true,empty,0,0,[]),
+          col(2,true,empty,0,0,[]),
+          col(3,true,empty,0,0,[]),
+          col(4,true,empty,0,0,[]),
+          col(5,true,empty,0,0,[]),
+          col(6,true,empty,0,0,[]),
+          col(7,true,empty,0,0,[])
+          ).          
+ 
+initState(row(1,[]),
+          row(2,[]),
+          row(3,[]),
+          row(4,[]),
+          row(5,[]),
+          row(6,[]),
+*/
+/*
 boardState :-
-    col(1,Free,TP,TN,[Top|Bot]),
-    col(2,Free,TP,TN,[Top|Bot]),
-    col(3,Free,TP,TN,[Top|Bot]),
-    col(4,Free,TP,TN,[Top|Bot]),
-    col(5,Free,TP,TN,[Top|Bot]),
-    col(6,Free,TP,TN,[Top|Bot]),
-    col(7,Free,TP,TN,[Top|Bot]).
+    col(1,Free,TP,TN,L,[Top|Bot]),
+    col(2,Free,TP,TN,L,[Top|Bot]),
+    col(3,Free,TP,TN,L,[Top|Bot]),
+    col(4,Free,TP,TN,L,[Top|Bot]),
+    col(5,Free,TP,TN,L,[Top|Bot]),
+    col(6,Free,TP,TN,L,[Top|Bot]),
+    col(7,Free,TP,TN,L,[Top|Bot]).
 */
 
 
@@ -48,12 +66,19 @@ boardState :-
 %% a Game takes a move and the current state and returns a result game state
 %%type Game = Move -> State -> Result
 
+
 %%-- a Move is a piece drop to a column with room in it.
-%%-- a Move is a piece drop to a column with room in it.
-move(red, col(Num,free,_,TN, P)) :- 
-    col(Num,free,red,TN,[red|P]).
-move(blue, col(Num,free,_,TN, P)) :-
-    col(Num,free,blue,TN,[blue|P]).
+%move(playerType(PL), col(Num,free,_,TN,L,P)) :- 
+%    col(Num,free,PL,TN,L+1,[P|PL]).
+%move(playerType(PL), col(Num,free,_,TN,5,P)) :- 
+%    col(Num,false,PL,TN,6,P).
+
+%move(playerType(PL), ColNum, row(Num,List)) :-
+%          insertPiece(ColNum, row(Num,List))).
+
+%insertPiece(ColNum, row(Num,List)) :-
+    
+
 move(concede).
 
 %%-- the State keeps track of the internal state of the game and the available moves
@@ -77,6 +102,8 @@ move(concede).
 type Player = State -> Move
 type IOPlayer = State -> IO Move
 */
+player(playerType(_), gameState(_), listOfMoves).
+
 
 %-- PlayerType is the two players in the game
 %data PlayerType = North | South
@@ -128,67 +155,26 @@ row(6).
 %%Square is a single square tile on a Connect4 grid
 %It can host either players' piece, 
 %or be empty.
-/*
 square(col(_),row(_)) :- empty.
 square(col(_),row(_)) :- red.
 square(col(_),row(_)) :- blue.
-*/
-% test row
-/*
+% test data
 square(col(1),row(_),x).
 square(col(2),row(_),x).
 square(col(3),row(_),o).
 square(col(4),row(_),o).
 square(col(5),row(_),x).
-square(col(6),row(_),'-').
+square(col(6),row(_),x).
 square(col(7),row(_),x).
-*/
-square(col(1),row(1),x).
-square(col(2),row(1),x).
-square(col(3),row(1),o).
-square(col(4),row(1),o).
-square(col(5),row(1),x).
-square(col(6),row(1),x).
-square(col(7),row(1),x).
-square(col(1),row(2),x).
-square(col(2),row(2),x).
-square(col(3),row(2),o).
-square(col(4),row(2),o).
-square(col(5),row(2),x).
-square(col(6),row(2),x).
-square(col(7),row(2),x).
-square(col(1),row(3),x).
-square(col(2),row(3),x).
-square(col(3),row(3),o).
-square(col(4),row(3),o).
-square(col(5),row(3),x).
-square(col(6),row(3),x).
-square(col(7),row(3),x).
-square(col(1),row(4),x).
-square(col(2),row(4),x).
-square(col(3),row(4),o).
-square(col(4),row(4),o).
-square(col(5),row(4),x).
-square(col(6),row(4),x).
-square(col(7),row(4),x).
-square(col(1),row(5),x).
-square(col(2),row(5),x).
-square(col(3),row(5),o).
-square(col(4),row(5),o).
-square(col(5),row(5),x).
-square(col(6),row(5),x).
-square(col(7),row(5),x).
-square(col(1),row(6),x).
-square(col(2),row(6),x).
-square(col(3),row(6),o).
-square(col(4),row(6),o).
-square(col(5),row(6),x).
-square(col(6),row(6),x).
-square(col(7),row(6),x).
 
 red.
 blue.
 empty.
+
+%Gameplay:
+%
+
+
 /*
 -- 
 data Square = Square Int Int
@@ -264,7 +250,6 @@ play_mode(_) :- print('Good bye').
 %play_player(Board)
 %play_player(Board)
 %play_player(Board)
-/*
 play_player(Board) :-
     displayBoardExample,
     print('Player X turn:'),
@@ -279,17 +264,14 @@ play_player(Board) :-
 %    insert_piece(Board, o, N, BoardO),
 %    display_board(BoardO),
     play_player(BoardO).
-*/
 
 
 %insert_piece(Board, Colour, Column, BoardX).
 
 
-displayPiece(empty) :- write('-').
-displayPiece(red) :- write('X').
-displayPiece(blue) :- write('O').
-
-
+displayPiece(empty) :- print('-').
+displayPiece(red) :- print('X').
+displayPiece(blue) :- print('O').
 
 exampleBoard :-
     col(1,true,empty,0,[empty,empty,empty,empty,empty,empty]),
@@ -299,6 +281,7 @@ exampleBoard :-
     col(5,true,empty,0,[empty,empty,empty,empty,empty,empty]),
     col(6,true,empty,0,[empty,empty,empty,empty,empty,empty]),
     col(7,true,empty,0,[empty,empty,empty,empty,empty,empty]).
+
 
 displayBoardExample :- 
     print(' |_|_|_|_|_|_|_| '),
@@ -312,6 +295,9 @@ displayBoardExample :-
     print(' |_|_|_|_|_|_|_| '),
     nl,    
     print(' |_|_|_|_|_|_|_| ').
+
+% display board row by row (?)
+%displayBoard
 
 % display board row by row (?)
 displayBoard(row(6)) :-
@@ -336,10 +322,6 @@ displaySquares(col(X),row(Y)) :-
     write('|'),
     X1 is X + 1,
     displaySquares(col(X1), row(Y)).
-
-
-
-
 
     /*
 */
