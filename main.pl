@@ -3,7 +3,7 @@ use_module(library(clpfd)).
 
 
 % Empty Cell:
-empty(-).
+%empty(-).
 
 /*
    Each column is a term col(Num,Free,TP,TN,Ps), where:
@@ -128,11 +128,23 @@ row(6).
 %%Square is a single square tile on a Connect4 grid
 %It can host either players' piece, 
 %or be empty.
+/*
 square(col(_),row(_)) :- empty.
 square(col(_),row(_)) :- red.
 square(col(_),row(_)) :- blue.
+*/
+% test data
+square(col(1),row(_),x).
+square(col(2),row(_),x).
+square(col(3),row(_),o).
+square(col(4),row(_),o).
+square(col(5),row(_),x).
+square(col(6),row(_),x).
+square(col(7),row(_),x).
 
-
+red.
+blue.
+empty.
 /*
 -- 
 data Square = Square Int Int
@@ -208,6 +220,7 @@ play_mode(_) :- print('Good bye').
 %play_player(Board)
 %play_player(Board)
 %play_player(Board)
+/*
 play_player(Board) :-
     displayBoardExample,
     print('Player X turn:'),
@@ -222,14 +235,26 @@ play_player(Board) :-
 %    insert_piece(Board, o, N, BoardO),
 %    display_board(BoardO),
     play_player(BoardO).
+*/
 
 
 %insert_piece(Board, Colour, Column, BoardX).
 
 
-displayPiece(empty) :- print('-').
-displayPiece(red) :- print('X').
-displayPiece(blue) :- print('O').
+displayPiece(empty) :- write('-').
+displayPiece(red) :- write('X').
+displayPiece(blue) :- write('O').
+
+
+
+exampleBoard :-
+    col(1,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(2,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(3,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(4,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(5,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(6,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(7,true,empty,0,[empty,empty,empty,empty,empty,empty]).
 
 displayBoardExample :- 
     print(' |_|_|_|_|_|_|_| '),
@@ -245,18 +270,25 @@ displayBoardExample :-
     print(' |_|_|_|_|_|_|_| ').
 
 % display board row by row (?)
-%displayBoard
 
 displayRow(row(Y)) :- 
-    print(' |'),         
-    % TODO: display all pieces in a single row  
-    print('| ').
+    write(' |'),         
+    displaySquares(col(1),row(Y)).
 
-%displaySquares(square(col(7),row(Y))) :-
-    
-displaySquares(square(col(X),row(Y))) :- 
-    
-    displaySquares(square(col(X+1),row(Y))).
+displaySquares(col(7),row(Y)) :-
+    square(col(7),row(Y),Piece),
+    write(Piece),
+    write('|').
+displaySquares(col(X),row(Y)) :-
+    square(col(7),row(Y),Piece),
+    write(Piece),
+    write('|'),
+    X1 is X + 1,
+    displaySquares(col(X1), row(Y)).
+
+
+
+
 
     /*
 */
