@@ -19,16 +19,16 @@ col(_,true,empty,0,[]).
 
 % Empty Board:
 % - 
-/*
+
 initBoard :-
-    col(1,true,empty,0,[]),
-    col(2,true,empty,0,[]),
-    col(3,true,empty,0,[]),
-    col(4,true,empty,0,[]),
-    col(5,true,empty,0,[]),
-    col(6,true,empty,0,[]),
-    col(7,true,empty,0,[]).
-*/
+    col(1,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(2,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(3,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(4,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(5,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(6,true,empty,0,[empty,empty,empty,empty,empty,empty]),
+    col(7,true,empty,0,[empty,empty,empty,empty,empty,empty]).
+
 
 
 /*
@@ -43,8 +43,6 @@ boardState :-
 */
 
 
-standardRows(6).  
-standardCols(7). 
 
 
 %% a Game takes a move and the current state and returns a result game state
@@ -52,9 +50,9 @@ standardCols(7).
 
 %%-- a Move is a piece drop to a column with room in it.
 %%-- a Move is a piece drop to a column with room in it.
-move(red, col(Num,free,TP,TN, P)) :- 
+move(red, col(Num,free,_,TN, P)) :- 
     col(Num,free,red,TN,[red|P]).
-move(blue, col(Num,free,TP,TN, P)) :-
+move(blue, col(Num,free,_,TN, P)) :-
     col(Num,free,blue,TN,[blue|P]).
 move(concede).
 
@@ -62,14 +60,92 @@ move(concede).
 %%data State = State InternalState [Move]
 
 %%-- a Result is what happens after each move
-%%data Result = EndOfGame PlayerType GameBoard    -- end of game, value, ending state
+%%%data Result = EndOfGame PlayerType GameBoard    -- end of game, value, ending state
 %            | MyTurn State              -- continue current player's turn with new state
 %            | YourTurn State            -- continue next player's turn with new state
  %           | InvalidMove State
 
+
+
 %-- Current Game State:
 %-- - Gameboard
 %-- - Player's turn
+%data InternalState = GameState GameBoard PlayerType
+
+/*
+%-- a Player takes the current state of the game and returns a move
+type Player = State -> Move
+type IOPlayer = State -> IO Move
+
+-- PlayerType is the two players in the game
+data PlayerType = North | South
+  deriving (Eq, Show)
+*/
+playerType(red).
+playerType(blue).
+
+
+/*
+-- flipPlayer returns the opposite of the given player type
+flipPlayer :: PlayerType -> PlayerType
+flipPlayer North = South
+flipPlayer South = North
+*/
+
+flipPlayer(red) :- player(blue).
+
+/*
+
+%Pieces are either
+%empty cell:   '-', empty 
+%piece of red player:   'X', red
+%piece of blue player:   'O', blue
+ */
+
+standardRows(6).  
+standardCols(7). 
+
+
+col(1).
+col(2).
+col(3).
+col(4).
+col(5).
+col(6).
+col(7).
+
+row(1).
+row(2).
+row(3).
+row(4).
+row(5).
+row(6).
+
+%%Square is a single square tile on a Connect4 grid
+%It can host either players' piece, 
+%or be empty.
+square(col(_),row(_)) :- empty.
+square(col(_),row(_)) :- red.
+square(col(_),row(_)) :- blue.
+
+
+/*
+-- 
+data Square = Square Int Int
+    deriving (Show)
+
+instance Eq Square where
+    (Square a b) == (Square c d) = a == c && b == d
+
+instance Ord Square where
+    (Square a b) <= (Square c d) = a < c || (a == c && b <= d)
+*/
+
+
+/*
+-- GameBoard is a map from a square to the piece in that square
+type GameBoard = Map Square Piece
+*/
 
 
 
@@ -123,17 +199,15 @@ play_mode(2) :- print('Playing against AI'),
     nl.
 play_mode(_) :- print('Good bye').
 
-/*
-Pieces are either
-empty cell:   '-', empty 
-piece of red player:   'X', red
-piece of blue player:   'O', blue
- */
 
 displayPiece(empty) :- print('-').
 displayPiece(red) :- print('X').
 displayPiece(blue) :- print('O').
 
 
+ 
     
+   
 
+    /*
+*/
