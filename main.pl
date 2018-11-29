@@ -248,7 +248,8 @@ play_mode(1) :- print('Playing against your friend'),
     read(_),
     displayBoardExample,
     nl,
-    gameTurn(initBoardExample, red).
+    initBoardFull(B),
+    gameTurn(B, red).
 play_mode(2) :- print('Playing against AI'),
     nl,
     print('Press any key to continue'), %TODO replace for real game board
@@ -272,6 +273,10 @@ gameTurn(Board, red) :-
     nl,
     write('Moves Available:'),
     nl,
+    getListOfAvailMoves(Board, ListTotal),
+    nl,
+    write(ListTotal),
+    nl,
     %TODO: display list of available moves here
     %ONLY list of moves, or concede, 
     % are available to players.
@@ -280,7 +285,7 @@ gameTurn(Board, red) :-
 %    userMove(Board, Move, BoardAfter),
     %displayBoard(BoardAfter),
     displayBoardExample, %TODO replace for real game board
-    gameTurn(BoardAfter1, blue).
+    gameTurn(Board, blue).
 
 
 gameTurn(Board, blue) :-
@@ -290,6 +295,9 @@ gameTurn(Board, blue) :-
     nl,
     write('Moves Available:'),
     nl,
+    getListOfAvailMoves(Board, ListTotal),
+    nl,
+    write(ListTotal),
     %TODO: display list of available moves here
     %ONLY list of moves, or concede, 
     % are available to players.
@@ -298,29 +306,40 @@ gameTurn(Board, blue) :-
 %    userMove(Board, Move, BoardAfter),
     %displayBoard(BoardAfter),
     displayBoardExample, %TODO replace for real game board
-    gameTurn(BoardAfter1, red).
+
+    gameTurn(Board, red).
 
 
 %USE THIS
+showListTotal([]).
+showListTotal([H|T]) :-
+    write(H),
+    showListTotal(T).
+
+
 getListOfAvailMoves(Board, ListTotal) :- 
-    getListOfAvailMoves(1, Board, [], ListTotal).
+    getListOfAvailMoves(0, Board, [], ListTotal).
+%ENDCASE
+getListOfAvailMoves(7, _, ListTotal, ListTotal).
 %CASE: col has available move
-getListOfAvailMoves(Count, Board, ListInit, ListTotal) :-
+getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
     nth1(Count,Board,Col),  %get nth col from board
-    member('_', Col),  %incl if col has empties in it
-    append(Count,ListInit,ListTotal), %incl N if its a col w/ empties in it
-    Count1 is Count +1,
-    getListOfAvailMoves(Count1, Board, ListTotal).
+    columnFree(Col),  %incl if col has empties in it
+%    append(Count,ListInit,ListTotal), %incl N if its a col w/ empties in it
+    Count1 is Count+1,
+    getListOfAvailMoves(Count1, Board, [Count|Acc], ListTotal).
+getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
+    Count1 is Count+1,
+    getListOfAvailMoves(Count1, Board, Acc, ListTotal).
 %CASE: col DOESNT has available move
-getListOfAvailMoves(Count, Board, _, ListTotal) :-
+/*
+getListOfAvailMoves(Count, Board, ListTotal) :-
     nth1(Count,Board,Col),  %get nth col from board
     \+ member('_', Col),  %incl if col has empties in it
     Count1 is Count+1,
     getListOfAvailMoves(Count1, Board, ListTotal).
-%ENDCASE
-getListOfAvailMoves(8, _, _, _).
-
-
+    */
+columnFree(Column) :- member('_',Column). 
 %TODO
 %getMove(Player, Move, ListOfMoves)
 %%getMove(Player, Move, Concede) Concede: qq, QQ, Qq, qQ
@@ -442,7 +461,7 @@ initBoardExample :- [
 */
 
 initBoard :- initBoardFull.
-initBoardFull(                   
+initBoardFull([                   
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_'],
@@ -450,7 +469,7 @@ initBoardFull(
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_']
-                    ).
+                    ]).
 
 /*    
 initBoardExample :- [
