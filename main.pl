@@ -1,5 +1,4 @@
-use_module(library(clpfd)).
-
+:- use_module(library(clpfd)).
 
 
 
@@ -284,7 +283,7 @@ gameTurn(Board, red) :-
     getMove(red, Move, ListTotal), 
 %    userMove(Board, Move, BoardAfter),
     %displayBoard(BoardAfter),
-    displayBoardExample, %TODO replace for real game board
+    displayBoard(Board), %TODO replace for real game board
     gameTurn(Board, blue).
 
 
@@ -305,7 +304,7 @@ gameTurn(Board, blue) :-
     getMove(red, Move, ListTotal), 
 %    userMove(Board, Move, BoardAfter),
     %displayBoard(BoardAfter),
-    displayBoardExample, %TODO replace for real game board
+    displayBoard(Board), %TODO replace for real game board
 
     gameTurn(Board, red).
 
@@ -515,44 +514,38 @@ initBoardExample :- [
     
     
 displayBoardExample :- 
-    print(' |_|_|_|_|_|_|_| '),
+    write(' |_|_|_|_|_|_|_| '),
     nl,    
-    print(' |_|_|_|_|_|_|_| '),
+    write(' |_|_|_|_|_|_|_| '),
     nl,    
-    print(' |_|_|_|_|_|_|_| '),
+    write(' |_|_|_|_|_|_|_| '),
     nl,    
-    print(' |_|_|_|_|_|_|_| '),
+    write(' |_|_|_|_|_|_|_| '),
     nl,    
-    print(' |_|_|_|_|_|_|_| '),
+    write(' |_|_|_|_|_|_|_| '),
     nl,    
-    print(' |_|_|_|_|_|_|_| ').
+    write(' |_|_|_|_|_|_|_| ').
 
 % display board row by row (?)
 %displayBoard
 
 % display board row by row (?)
-displayBoard(row(6)) :-
-    displayRow(row(6)).
-displayBoard(row(Y)) :-
-    displayRow(row(Y)),
-    nl,
-    Y1 is Y+1,
-    displayBoard(row(Y1)).
+displayBoard(Board) :-
+    transpose(Board, BoardNew),
+    displayRows(BoardNew).
 
-displayRow(row(Y)) :- 
+displayRows([]).
+displayRows([H|T]) :- 
     write(' |'),         
-    displaySquares(col(1),row(Y)).
+    displaySquares(H),
+    nl,
+    displayRows(T).
 
-displaySquares(col(7),row(Y)) :-
-    square(col(7),row(Y),Piece),
-    write(Piece),
-    write('|').
-displaySquares(col(X),row(Y)) :-
-    square(col(X),row(Y),Piece),
-    write(Piece),
+displaySquares([]).
+displaySquares([H|T]) :-
+    write(H),
     write('|'),
-    X1 is X + 1,
-    displaySquares(col(X1), row(Y)).
+    displaySquares(T).
 
     /*
 */
