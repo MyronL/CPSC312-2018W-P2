@@ -282,7 +282,6 @@ gameTurn(Board, red) :-
     % are available to players.
     read(Move),
     getMove(red, Move, ListTotal), 
-%    getMove(Player, Move), %TODO: this gets user kb input as move or concede
 %    userMove(Board, Move, BoardAfter),
     %displayBoard(BoardAfter),
     displayBoardExample, %TODO replace for real game board
@@ -304,7 +303,6 @@ gameTurn(Board, blue) :-
     % are available to players.
     read(Move),
     getMove(red, Move, ListTotal), 
-%    getMove(Player, Move), %TODO: this gets user kb input as move or concede
 %    userMove(Board, Move, BoardAfter),
     %displayBoard(BoardAfter),
     displayBoardExample, %TODO replace for real game board
@@ -322,7 +320,7 @@ showListTotal([H|T]) :-
 getListOfAvailMoves(Board, ListTotal) :- 
     getListOfAvailMoves(0, Board, [], ListTotal).
 %ENDCASE
-getListOfAvailMoves(7, _, ListTotal, ListTotal).
+getListOfAvailMoves(8, _, ListTotal, ListTotal).
 %CASE: col has available move
 getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
     nth1(Count,Board,Col),  %get nth col from board
@@ -359,9 +357,21 @@ getMove(Player, _, ListOfMoves) :-
     getMove(Player, NewMove, ListOfMoves).
 
 isConcede(Move) :- Move == qq.
-
-
 %Concede: qq, QQ, Qq, qQ
+
+
+insertBoard(Board, Move, Player, BoardAfter) :-
+    nth1(Move, Board, Col),
+    insertColumn(Col, Player, ColNew),
+    updateBoard(Board, Move, ColNew, BoardAfter).
+
+insertColumn(['_',X|T], Player, [Player, X|T]) :- \+ X == '_'.
+insertColumn(['_'], Player, [Player]).
+insertColumn([H|T], Player, [H|R]) :- insertColumn(T, Player, R).
+
+
+%TODO
+updateBoard().
 
 
 %win(Board, Player) :- Board, Player. %STUB
