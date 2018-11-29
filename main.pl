@@ -1,5 +1,5 @@
-use_module(library(clpfd)).
-
+:- use_module(library(clpfd)).
+:- use_module(library(lists)).
 
 
 
@@ -308,9 +308,23 @@ getListOfAvailMoves(Board, ListTotal) :-
     append(N,List,ListTotal). %incl N if its a col w/ empties in it
 
 
-%TODO
-%getMove(Player, Move, ListOfMoves)
-%%getMove(Player, Move, Concede) Concede: qq, QQ, Qq, qQ
+%TODO - probably check my logic
+getMove(Board, ListOfMoves, 7, Acc) :-
+    nth1(7, Board, Column),
+    insertAtEnd(Column, Acc, ListOfMoves).
+getMove(Board, ListOfMoves, X, Acc) :-
+    nth1(X, Board, Column),
+    insertAtEnd(Column, Acc, ListOfMoves),
+    X1 is X+1,
+    getMove(Board, ListOfMoves, X1, ListOfMoves).
+insertAtEnd(X,Y,Z) :- append(Y,[X],Z).
+getMove(_,_,qq) :-
+    write('Player has forfeited'),
+    halt.
+
+    
+%getMove(Player, Move, Concede) Concede: qq, QQ, Qq, qQ
+
 
 
 %win(Board, Player) :- Board, Player. %STUB
@@ -429,7 +443,7 @@ initBoardExample :- [
 */
 
 initBoard :- initBoardFull.
-initBoardFull(                   
+initBoardFull([                   
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_'],
@@ -437,7 +451,9 @@ initBoardFull(
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_']
-                    ).
+    ]).
+
+% [['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_']]
 
 /*    
 initBoardExample :- [
