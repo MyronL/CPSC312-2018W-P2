@@ -302,10 +302,21 @@ gameTurn(Board, blue) :-
 
 
 %USE THIS
-getListOfAvailMoves(Board, ListTotal) :-
-    nth1(N,Board,Col),  %get nth col from board
+getListOfAvailMoves(Board, ListTotal) :- 
+    getListOfAvailMoves(1, Board, [], ListTotal).
+%CASE: col has available move
+getListOfAvailMoves(Count, Board, ListInit, ListTotal) :-
+    nth1(Count,Board,Col),  %get nth col from board
     member('_', Col),  %incl if col has empties in it
-    append(N,List,ListTotal). %incl N if its a col w/ empties in it
+    append(Count,ListInit,ListTotal), %incl N if its a col w/ empties in it
+    getListOfAvailMoves(Count+1, Board, ListTotal).
+%CASE: col DOESNT has available move
+getListOfAvailMoves(Count, Board, _, ListTotal) :-
+    nth1(Count,Board,Col),  %get nth col from board
+    \+ member('_', Col),  %incl if col has empties in it
+    getListOfAvailMoves(Count+1, Board, ListTotal).
+%ENDCASE
+getListOfAvailMoves(8, _, _, _).
 
 
 %TODO
