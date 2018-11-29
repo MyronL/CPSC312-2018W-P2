@@ -398,27 +398,6 @@ updateBoard(Board, _, _, Board). %STUB
 %allValidUserMoves(Board, Player, ListOfCols) :- 
  
 
-/*
-% Insert a piece into a column of the board
-% True if Board1 is Board with an additional entry of Colour in Column
-insert_into_board(Board, Colour, Column, Board1) :-
-    nth1(Column, Board, C), % gives us the desired Column of Board as C
-    insert_into_column(C, Colour, C2),
-    update_board(Board, Column, C2, Board1).
-
-% insert_into_column(Column, Colour, Result)
-% Insert a piece into a specificed column
-% True if Result is Column with a new entry of type Colour inserted
-insert_into_column(['-',X|T], Colour, [Colour,X|T]) :- \+X = '-'.
-insert_into_column(['-'], Colour, [Colour]).
-insert_into_column([H|T], Colour, [H|R]) :- insert_into_column(T, Colour, R).
-
-% update_board(Board1, N, C2, Board2)
-% Replaces the Nth column in Board1 with C2.
-% True if Board2 is Board1 with the Nth column replaced by C2.
-update_board([H|T], 1, C, [C|T]).
-update_board([H|T], N, C, [H|R]) :- N2 is N-1, update_board(T, N2, C, R).
-*/
 
 
 
