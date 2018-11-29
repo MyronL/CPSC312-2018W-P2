@@ -244,13 +244,12 @@ play :- welcomeScreen,
 play_mode(1) :- print('Playing against your friend'),
     nl,
     print('Ready... 3. 2.. 1...'),  
-    sleep(2),
+    %sleep(2),
     nl,
     print('GO!'),
-    nl, 
-    displayBoardExample,
     nl,
     initBoardFull(B),
+    displayBoard(B),
     gameTurn(B, red).
 
 play_mode(2) :- print('Playing against AI'),
@@ -297,7 +296,7 @@ gameTurn(Board, Player) :-
     %displayBoard(BoardAfter),
     displayBoard(BoardAfter), %TODO replace for real game board
     flipPlayer(Player, OtherPlayer),
-    gameTurn(Board, OtherPlayer).
+    gameTurn(BoardAfter, OtherPlayer).
 
 
 %Use this for getting opposite player. 
@@ -338,7 +337,10 @@ getListOfAvailMoves(Count, Board, ListTotal) :-
     getListOfAvailMoves(Count1, Board, ListTotal).
     */
 columnFree(Column) :- member('_',Column). 
-%TODO - Not sure if we should be using abort or not.
+
+
+getMove(_, Move, ListOfMoves) :-
+    member(Move, ListOfMoves).
 getMove(blue, Move, _) :-
     isConcede(Move),
     write('Blue player has conceded'),
@@ -351,10 +353,10 @@ getMove(red, Move, _) :-
     nl,
     nl,
     play.
-getMove(_, Move, ListOfMoves) :-
-    member(Move, ListOfMoves).
 getMove(Player, _, ListOfMoves) :-
-    write('Not valid move. Please select a valid move'),
+    write('Not valid move. Please select a valid move '),
+    write(ListOfMoves),
+    nl,
     read(NewMove),
     getMove(Player, NewMove, ListOfMoves).
 
@@ -363,7 +365,7 @@ isConcede(Move) :- Move == qq.
 
 
 %insertToBoard(_, _, _, _).
-insertToBoard(Board, _, _, Board). %STUB
+%insertToBoard(Board, _, _, Board). %STUB
 
 %%USE THIS ONE
 insertToBoard(Board, Move, Player, BoardAfter) :-
@@ -376,16 +378,20 @@ insertColumn(['_',X|T], Player, [PlayerPiece, X|T]) :-
     \+ X == '_'.
 insertColumn(['_'], Player, [PlayerPiece]) :-
     playerPiece(Player, PlayerPiece).  
-insertColumn([H|T], Player, [H|R]) :- 
-    playerPiece(Player, PlayerPiece),    
-    insertColumn(T, PlayerPiece, R).
+insertColumn([H|T], Player, [H|R]) :-    
+    insertColumn(T, Player, R).
 
-playerPiece(red, 'r').
-playerPiece(blue, 'b').
+playerPiece(red, x).
+playerPiece(blue, o).
 
 %TODO
-updateBoard(Board, _, _, Board). %STUB
-%updateBoard(Board, Move, ColNew, BoardAfter).
+%updateBoard(Board, _, _, Board). %STUB
+/*
+update(Board, Move, ColNew, BoardAfter)
+BoardAfter should be Board with ColNew replacing old column
+*/
+updateBoard([_|T], 1, ColNew, [ColNew|T]).
+updateBoard([H|T], Move, ColNew, [H|X]) :- Move1 is Move-1, updateBoard(T, Move1, ColNew, X).
 
 %win(Board, Player) :- Board, Player. %STUB
 %full(Board) :- Board. %STUB
