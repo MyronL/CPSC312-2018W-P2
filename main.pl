@@ -243,19 +243,28 @@ play :- welcomeScreen,
 
 play_mode(1) :- print('Playing against your friend'),
     nl,
-    print('Press any key to continue'),
-    read(_),
+    print('Ready... 3. 2.. 1...'),  
+    sleep(2),
+    nl,
+    print('GO!'),
+    nl, 
     displayBoardExample,
     nl,
     initBoardFull(B),
     gameTurn(B, red).
+
 play_mode(2) :- print('Playing against AI'),
     nl,
-    print('Press any key to continue'), %TODO replace for real game board
-    read(_),
-    displayBoardExample, %TODO replace for real game board
-    nl.
- %   gameTurn(initBoardExample, red).    
+    print('Ready... 3. 2.. 1...'),  
+    sleep(2),
+    nl,
+    print('GO!'),
+    nl, 
+    displayBoardExample,
+    nl,
+    initBoardFull(B),
+    gameTurn(B, red).
+
 play_mode(_) :- 
     print('Good bye'),
     abort.
@@ -283,9 +292,10 @@ gameTurn(Board, Player) :-
     read(Move),
     getMove(Player, Move, ListTotal), 
 %    userMove(Board, Move, BoardAfter),
-%    insertToBoard(Board, Move, red, BoardAfter),    
+%    insertToBoard(Board, Move, Player, BoardAfter), 
+    insertToBoard(Board, Move, Player, BoardAfter), 
     %displayBoard(BoardAfter),
-    displayBoard(Board), %TODO replace for real game board
+    displayBoard(BoardAfter), %TODO replace for real game board
     flipPlayer(Player, OtherPlayer),
     gameTurn(Board, OtherPlayer).
 
@@ -353,19 +363,29 @@ isConcede(Move) :- Move == qq.
 
 
 %insertToBoard(_, _, _, _).
-%insertToBoard(Board, Move, Player, BoardAfter) :-
-%    nth1(Move, Board, Col).
-%    insertColumn(Col, Player, _).
-%    updateBoard(Board, Move, ColNew, BoardAfter).
+insertToBoard(Board, _, _, Board). %STUB
 
-insertColumn(['_',X|T], Player, [Player, X|T]) :- \+ X == '_'.
-insertColumn(['_'], Player, [Player]).
-insertColumn([H|T], Player, [H|R]) :- insertColumn(T, Player, R).
+%%USE THIS ONE
+insertToBoard(Board, Move, Player, BoardAfter) :-
+    nth1(Move, Board, Col),
+    insertColumn(Col, Player, ColNew),
+    updateBoard(Board, Move, ColNew, BoardAfter).
 
+insertColumn(['_',X|T], Player, [PlayerPiece, X|T]) :- 
+    playerPiece(Player, PlayerPiece),
+    \+ X == '_'.
+insertColumn(['_'], Player, [PlayerPiece]) :-
+    playerPiece(Player, PlayerPiece).  
+insertColumn([H|T], Player, [H|R]) :- 
+    playerPiece(Player, PlayerPiece),    
+    insertColumn(T, PlayerPiece, R).
+
+playerPiece(red, 'r').
+playerPiece(blue, 'b').
 
 %TODO
-%updateBoard().
-
+updateBoard(Board, _, _, Board). %STUB
+%updateBoard(Board, Move, ColNew, BoardAfter).
 
 %win(Board, Player) :- Board, Player. %STUB
 %full(Board) :- Board. %STUB
