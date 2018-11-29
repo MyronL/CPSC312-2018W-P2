@@ -318,20 +318,21 @@ showListTotal([H|T]) :-
 
 
 getListOfAvailMoves(Board, ListTotal) :- 
-    getListOfAvailMoves(0, Board, [], ListTotal).
+    getListOfAvailMoves(7, Board, [], ListTotal).
 %ENDCASE
-getListOfAvailMoves(8, _, ListTotal, ListTotal).
+getListOfAvailMoves(0, _, ListTotal, ListTotal).
 %CASE: col has available move
 getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
     nth1(Count,Board,Col),  %get nth col from board
     columnFree(Col),  %incl if col has empties in it
 %    append(Count,ListInit,ListTotal), %incl N if its a col w/ empties in it
-    Count1 is Count+1,
+    Count1 is Count-1,
     getListOfAvailMoves(Count1, Board, [Count|Acc], ListTotal).
-getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
-    Count1 is Count+1,
-    getListOfAvailMoves(Count1, Board, Acc, ListTotal).
 %CASE: col DOESNT has available move
+getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
+    Count1 is Count-1,
+    getListOfAvailMoves(Count1, Board, Acc, ListTotal).
+
 /*
 getListOfAvailMoves(Count, Board, ListTotal) :-
     nth1(Count,Board,Col),  %get nth col from board
