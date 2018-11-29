@@ -256,7 +256,9 @@ play_mode(2) :- print('Playing against AI'),
     displayBoardExample, %TODO replace for real game board
     nl.
  %   gameTurn(initBoardExample, red).    
-play_mode(_) :- print('Good bye').
+play_mode(_) :- 
+    print('Good bye'),
+    abort.
 
 
 %gameTurn(Board, Player) :- 
@@ -265,48 +267,34 @@ play_mode(_) :- print('Good bye').
 %gameTurn(Board, _) :- 
 %    full(Board), 
 %    write('It\'s a Draw!').
-gameTurn(Board, red) :-
+gameTurn(Board, Player) :-
     nl,
-    write(red),
+    write(Player),
     write(' player\'s turn:'),
     nl,
     write('Moves Available:'),
-    nl,
     getListOfAvailMoves(Board, ListTotal),
-    nl,
     write(ListTotal),
-    nl,
+    nl,    
+    write('Please select a column. (Or enter qq to quit)'),
     %TODO: display list of available moves here
     %ONLY list of moves, or concede, 
     % are available to players.
     read(Move),
-    getMove(red, Move, ListTotal), 
+    getMove(Player, Move, ListTotal), 
 %    userMove(Board, Move, BoardAfter),
+%    insertToBoard(Board, Move, red, BoardAfter),    
     %displayBoard(BoardAfter),
     displayBoard(Board), %TODO replace for real game board
-    gameTurn(Board, blue).
+    flipPlayer(Player, OtherPlayer),
+    gameTurn(Board, OtherPlayer).
 
 
-gameTurn(Board, blue) :-
-    nl,
-    write(blue),
-    write(' player\'s turn:'),
-    nl,
-    write('Moves Available:'),
-    nl,
-    getListOfAvailMoves(Board, ListTotal),
-    nl,
-    write(ListTotal),
-    %TODO: display list of available moves here
-    %ONLY list of moves, or concede, 
-    % are available to players.
-    read(Move),
-    getMove(red, Move, ListTotal), 
-%    userMove(Board, Move, BoardAfter),
-    %displayBoard(BoardAfter),
-    displayBoard(Board), %TODO replace for real game board
+%Use this for getting opposite player. 
+%Use as flipPlayer(Player, OtherPlayer).
+flipPlayer(red, blue).
+flipPlayer(blue, red).
 
-    gameTurn(Board, red).
 
 
 %USE THIS
@@ -344,11 +332,15 @@ columnFree(Column) :- member('_',Column).
 getMove(blue, Move, _) :-
     isConcede(Move),
     write('Blue player has conceded'),
-    abort.
+    nl,
+    nl,
+    play.
 getMove(red, Move, _) :- 
     isConcede(Move),
     write('Red player has condeded'),
-    abort.
+    nl,
+    nl,
+    play.
 getMove(_, Move, ListOfMoves) :-
     member(Move, ListOfMoves).
 getMove(Player, _, ListOfMoves) :-
@@ -360,10 +352,11 @@ isConcede(Move) :- Move == qq.
 %Concede: qq, QQ, Qq, qQ
 
 
-insertBoard(Board, Move, Player, BoardAfter) :-
-    nth1(Move, Board, Col),
-    insertColumn(Col, Player, ColNew),
-    updateBoard(Board, Move, ColNew, BoardAfter).
+%insertToBoard(_, _, _, _).
+%insertToBoard(Board, Move, Player, BoardAfter) :-
+%    nth1(Move, Board, Col).
+%    insertColumn(Col, Player, _).
+%    updateBoard(Board, Move, ColNew, BoardAfter).
 
 insertColumn(['_',X|T], Player, [Player, X|T]) :- \+ X == '_'.
 insertColumn(['_'], Player, [Player]).
@@ -371,7 +364,7 @@ insertColumn([H|T], Player, [H|R]) :- insertColumn(T, Player, R).
 
 
 %TODO
-updateBoard().
+%updateBoard().
 
 
 %win(Board, Player) :- Board, Player. %STUB
@@ -384,49 +377,31 @@ updateBoard().
 %shows all possible columns a player can drop a piece in
 %allValidUserMoves(Board, Player, ListOfCols) :- 
  
-/*
-    integer(N),
-    N >= 1,
-    N =< 7,
-    nth1(N, Board, C),
-    valid_move_column(C).
-valid_move_column([H|_]) :- H = '-'.
-*/
-
-% Insert a piece to board
-/* NOT THIS ONE
-insert(Board, Player, ColNum, BoardAfter) :-
-    insertToCol(
-        col(Col, ColNum,true,_,_,_,_),
-        Player, CAfter),
-    updateBoard(Board, Col, CAfter, BoardAfter).
-
-insertToCol(Col, ColNum, Player, CAfter) :- 
-    col(ColNum,true,empty,0,0,[empty,empty,empty,empty,empty,empty]).
-*/
-
-
-
-%%update_board([H|T], 1, C, [C|T]).
-%update_board([H|T], N, C, [H|R]) :- 
-%   N2 is N-1, update_board(T, N2, C, R).
-
-%updateBoard(Board, Col, CAfter, BoardAfter) :-
-    
 
 /*
-% Insert a piece to board
-insert(Board, Player, Col, BoardAfter) :-
-    nth1(Col, Board, C), % gives us the desired Column of Board as C
-    insertToCol(C, Player, CAfter),
-    updateBoard(Board, Col, CAfter, BoardAfter).
+% Insert a piece into a column of the board
+% True if Board1 is Board with an additional entry of Colour in Column
+insert_into_board(Board, Colour, Column, Board1) :-
+    nth1(Column, Board, C), % gives us the desired Column of Board as C
+    insert_into_column(C, Colour, C2),
+    update_board(Board, Column, C2, Board1).
 
-
+% insert_into_column(Column, Colour, Result)
 % Insert a piece into a specificed column
-insertToCol(['-',X|T], Colour, [Colour,X|T]) :- \+X = '-'.
-insertToCol(['-'], Colour, [Colour]).
-insertToCol([H|T], Colour, [H|R]) :- insertToCol(T, Colour, R).
+% True if Result is Column with a new entry of type Colour inserted
+insert_into_column(['-',X|T], Colour, [Colour,X|T]) :- \+X = '-'.
+insert_into_column(['-'], Colour, [Colour]).
+insert_into_column([H|T], Colour, [H|R]) :- insert_into_column(T, Colour, R).
+
+% update_board(Board1, N, C2, Board2)
+% Replaces the Nth column in Board1 with C2.
+% True if Board2 is Board1 with the Nth column replaced by C2.
+update_board([H|T], 1, C, [C|T]).
+update_board([H|T], N, C, [H|R]) :- N2 is N-1, update_board(T, N2, C, R).
 */
+
+
+
 
 
 
