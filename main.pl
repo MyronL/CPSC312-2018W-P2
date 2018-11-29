@@ -1,5 +1,5 @@
 :- use_module(library(clpfd)).
-
+:- use_module(library(lists)).
 
 
 
@@ -289,10 +289,9 @@ gameTurn(Board, Player) :-
     %ONLY list of moves, or concede, 
     % are available to players.
     read(Move),
-    getMove(Player, Move, ListTotal), 
+    getMove(Player, Move, ListTotal, Board, BoardAfter), 
 %    userMove(Board, Move, BoardAfter),
-%    insertToBoard(Board, Move, Player, BoardAfter), 
-    insertToBoard(Board, Move, Player, BoardAfter), 
+%    insertToBoard(Board, Move, Player, BoardAfter),  
     %displayBoard(BoardAfter),
     displayBoard(BoardAfter), %TODO replace for real game board
     flipPlayer(Player, OtherPlayer),
@@ -339,26 +338,29 @@ getListOfAvailMoves(Count, Board, ListTotal) :-
 columnFree(Column) :- member('_',Column). 
 
 
-getMove(_, Move, ListOfMoves) :-
-    member(Move, ListOfMoves).
-getMove(blue, Move, _) :-
+getMove(Player, Move, ListOfMoves, Board, BoardAfter) :-
+    member(Move, ListOfMoves),
+    insertToBoard(Board, Move, Player, BoardAfter).
+getMove(blue, Move, _, _, _) :-
     isConcede(Move),
     write('Blue player has conceded'),
     nl,
     nl,
     play.
-getMove(red, Move, _) :- 
+getMove(red, Move, _, _, _) :- 
     isConcede(Move),
     write('Red player has condeded'),
     nl,
     nl,
     play.
-getMove(Player, _, ListOfMoves) :-
+getMove(Player, _, ListOfMoves, Board, BoardAfter) :-
     write('Not valid move. Please select a valid move '),
     write(ListOfMoves),
     nl,
     read(NewMove),
-    getMove(Player, NewMove, ListOfMoves).
+    nl,
+    getMove(Player, NewMove, ListOfMoves, Board, BoardAfter).
+
 
 isConcede(Move) :- Move == qq.
 %Concede: qq, QQ, Qq, qQ
