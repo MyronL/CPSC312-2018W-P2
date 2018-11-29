@@ -258,11 +258,10 @@ play_mode(2) :- print('Playing against AI'),
     sleep(2),
     nl,
     print('GO!'),
-    nl, 
-    displayBoardExample,
     nl,
     initBoardFull(B),
-    gameTurn(B, red).
+    displayBoard(B),
+    gameTurn(B, red, Machine).
 
 play_mode(_) :- 
     print('Good bye'),
@@ -285,6 +284,7 @@ gameTurn(Board, Player) :-
     write(ListTotal),
     nl,    
     write('Please select a column. (Or enter qq to quit)'),
+    nl,
     %TODO: display list of available moves here
     %ONLY list of moves, or concede, 
     % are available to players.
@@ -296,7 +296,23 @@ gameTurn(Board, Player) :-
     displayBoard(BoardAfter), %TODO replace for real game board
     flipPlayer(Player, OtherPlayer),
     gameTurn(BoardAfter, OtherPlayer).
-
+gameTurn(Board, Player, Machine) :-
+    nl,
+    write(Player),
+    write(' player\'s turn:'),
+    nl,
+    write('Moves Available: '),
+    getListOfAvailMoves(Board, ListTotal),
+    write(ListTotal),
+    nl,
+    read(Move),
+    getMove(Player, Move, ListTotal, Board, BoardAfter),
+    displayBoard(BoardAfter),
+    nl,
+    write('Machine\'s turn'),
+    machineTurn(blue, Board, BoardMachine),
+    displayBoard(BoardMachine),
+    gameTurn(BoardMachine, Player, Machine).
 
 %Use this for getting opposite player. 
 %Use as flipPlayer(Player, OtherPlayer).
@@ -482,6 +498,15 @@ initBoardFull([
     ['_', '_', '_', '_', '_', '_']
     ]).
 
+% TODO
+machineTurn(Player, Board, Board).
+machineTurn(Player, Board, BoardAfter) :-
+    selectMove(Board, 3, Player, Move),
+    insertToBoard(Board, Move, Player, BoardAfter).
+
+% Select Move gets best move
+% depth is how far you want to search into a path
+selectMove(Board, Depth, Player, Move).
 
 /*    
 initBoardExample :- [
