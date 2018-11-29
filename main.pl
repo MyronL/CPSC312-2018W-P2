@@ -280,7 +280,8 @@ gameTurn(Board, red) :-
     %TODO: display list of available moves here
     %ONLY list of moves, or concede, 
     % are available to players.
-    read(_), 
+    read(Move),
+    getMove(red, Move, ListTotal), 
 %    getMove(Player, Move), %TODO: this gets user kb input as move or concede
 %    userMove(Board, Move, BoardAfter),
     %displayBoard(BoardAfter),
@@ -301,7 +302,8 @@ gameTurn(Board, blue) :-
     %TODO: display list of available moves here
     %ONLY list of moves, or concede, 
     % are available to players.
-    read(_), 
+    read(Move),
+    getMove(red, Move, ListTotal), 
 %    getMove(Player, Move), %TODO: this gets user kb input as move or concede
 %    userMove(Board, Move, BoardAfter),
     %displayBoard(BoardAfter),
@@ -340,9 +342,26 @@ getListOfAvailMoves(Count, Board, ListTotal) :-
     getListOfAvailMoves(Count1, Board, ListTotal).
     */
 columnFree(Column) :- member('_',Column). 
-%TODO
-%getMove(Player, Move, ListOfMoves)
-%%getMove(Player, Move, Concede) Concede: qq, QQ, Qq, qQ
+%TODO - Not sure if we should be using abort or not.
+getMove(blue, Move, _) :-
+    isConcede(Move),
+    write('Blue player has conceded'),
+    abort.
+getMove(red, Move, _) :- 
+    isConcede(Move),
+    write('Red player has condeded'),
+    abort.
+getMove(_, Move, ListOfMoves) :-
+    member(Move, ListOfMoves).
+getMove(Player, _, ListOfMoves) :-
+    write('Not valid move. Please select a valid move'),
+    read(NewMove),
+    getMove(Player, NewMove, ListOfMoves).
+
+isConcede(Move) :- Move == qq.
+
+
+%Concede: qq, QQ, Qq, qQ
 
 
 %win(Board, Player) :- Board, Player. %STUB
