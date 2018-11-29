@@ -3,7 +3,6 @@
 
 
 
-
 % Empty Board:
 % - 
 
@@ -244,19 +243,30 @@ play :- welcomeScreen,
 
 play_mode(1) :- print('Playing against your friend'),
     nl,
-    print('Press any key to continue'),
-    read(_),
-    displayBoardExample,
+    print('Ready... 3. 2.. 1...'),  
+    %sleep(2),
     nl,
-    gameTurn(initBoardExample, red).
+    print('GO!'),
+    nl,
+    initBoardFull(B),
+    displayBoard(B),
+    gameTurn(B, red).
+
 play_mode(2) :- print('Playing against AI'),
     nl,
-    print('Press any key to continue'), %TODO replace for real game board
-    read(_),
-    displayBoardExample, %TODO replace for real game board
-    nl.
- %   gameTurn(initBoardExample, red).    
-play_mode(_) :- print('Good bye').
+    print('Ready... 3. 2.. 1...'),  
+    sleep(2),
+    nl,
+    print('GO!'),
+    nl, 
+    displayBoardExample,
+    nl,
+    initBoardFull(B),
+    gameTurn(B, red).
+
+play_mode(_) :- 
+    print('Good bye'),
+    abort.
 
 
 %gameTurn(Board, Player) :- 
@@ -265,67 +275,125 @@ play_mode(_) :- print('Good bye').
 %gameTurn(Board, _) :- 
 %    full(Board), 
 %    write('It\'s a Draw!').
-gameTurn(Board, red) :-
+gameTurn(Board, Player) :-
     nl,
-    write(red),
+    write(Player),
     write(' player\'s turn:'),
     nl,
     write('Moves Available:'),
-    nl,
+    getListOfAvailMoves(Board, ListTotal),
+    write(ListTotal),
+    nl,    
+    write('Please select a column. (Or enter qq to quit)'),
     %TODO: display list of available moves here
     %ONLY list of moves, or concede, 
     % are available to players.
-    read(_), 
-%    getMove(Player, Move), %TODO: this gets user kb input as move or concede
+    read(Move),
+    getMove(Player, Move, ListTotal, Board, BoardAfter), 
 %    userMove(Board, Move, BoardAfter),
+%    insertToBoard(Board, Move, Player, BoardAfter),  
     %displayBoard(BoardAfter),
-    displayBoardExample, %TODO replace for real game board
-    gameTurn(BoardAfter1, blue).
+    displayBoard(BoardAfter), %TODO replace for real game board
+    flipPlayer(Player, OtherPlayer),
+    gameTurn(BoardAfter, OtherPlayer).
 
 
-gameTurn(Board, blue) :-
-    nl,
-    write(blue),
-    write(' player\'s turn:'),
-    nl,
-    write('Moves Available:'),
-    nl,
-    %TODO: display list of available moves here
-    %ONLY list of moves, or concede, 
-    % are available to players.
-    read(_), 
-%    getMove(Player, Move), %TODO: this gets user kb input as move or concede
-%    userMove(Board, Move, BoardAfter),
-    %displayBoard(BoardAfter),
-    displayBoardExample, %TODO replace for real game board
-    gameTurn(BoardAfter1, red).
+%Use this for getting opposite player. 
+%Use as flipPlayer(Player, OtherPlayer).
+flipPlayer(red, blue).
+flipPlayer(blue, red).
+
 
 
 %USE THIS
-getListOfAvailMoves(Board, ListTotal) :-
-    nth1(N,Board,Col),  %get nth col from board
-    member('_', Col),  %incl if col has empties in it
-    append(N,List,ListTotal). %incl N if its a col w/ empties in it
+showListTotal([]).
+showListTotal([H|T]) :-
+    write(H),
+    showListTotal(T).
 
 
-%TODO - probably check my logic
-getMove(Board, ListOfMoves, 7, Acc) :-
-    nth1(7, Board, Column),
-    insertAtEnd(Column, Acc, ListOfMoves).
-getMove(Board, ListOfMoves, X, Acc) :-
-    nth1(X, Board, Column),
-    insertAtEnd(Column, Acc, ListOfMoves),
-    X1 is X+1,
-    getMove(Board, ListOfMoves, X1, ListOfMoves).
-insertAtEnd(X,Y,Z) :- append(Y,[X],Z).
-getMove(_,_,qq) :-
-    write('Player has forfeited'),
-    halt.
+getListOfAvailMoves(Board, ListTotal) :- 
+    getListOfAvailMoves(7, Board, [], ListTotal).
+%ENDCASE
+getListOfAvailMoves(0, _, ListTotal, ListTotal).
+%CASE: col has available move
+getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
+    nth1(Count,Board,Col),  %get nth col from board
+    columnFree(Col),  %incl if col has empties in it
+%    append(Count,ListInit,ListTotal), %incl N if its a col w/ empties in it
+    Count1 is Count-1,
+    getListOfAvailMoves(Count1, Board, [Count|Acc], ListTotal).
+%CASE: col DOESNT has available move
+getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
+    Count1 is Count-1,
+    getListOfAvailMoves(Count1, Board, Acc, ListTotal).
 
-    
-%getMove(Player, Move, Concede) Concede: qq, QQ, Qq, qQ
+/*
+getListOfAvailMoves(Count, Board, ListTotal) :-
+    nth1(Count,Board,Col),  %get nth col from board
+    \+ member('_', Col),  %incl if col has empties in it
+    Count1 is Count+1,
+    getListOfAvailMoves(Count1, Board, ListTotal).
+    */
+columnFree(Column) :- member('_',Column). 
 
 
+getMove(Player, Move, ListOfMoves, Board, BoardAfter) :-
+    member(Move, ListOfMoves),
+    insertToBoard(Board, Move, Player, BoardAfter).
+getMove(blue, Move, _, _, _) :-
+    isConcede(Move),
+    write('Blue player has conceded'),
+    nl,
+    nl,
+    play.
+getMove(red, Move, _, _, _) :- 
+    isConcede(Move),
+    write('Red player has condeded'),
+    nl,
+    nl,
+    play.
+getMove(Player, _, ListOfMoves, Board, BoardAfter) :-
+    write('Not valid move. Please select a valid move '),
+    write(ListOfMoves),
+    nl,
+    read(NewMove),
+    nl,
+    getMove(Player, NewMove, ListOfMoves, Board, BoardAfter).
+
+
+isConcede(Move) :- Move == qq.
+%Concede: qq, QQ, Qq, qQ
+
+
+%insertToBoard(_, _, _, _).
+%insertToBoard(Board, _, _, Board). %STUB
+
+%%USE THIS ONE
+insertToBoard(Board, Move, Player, BoardAfter) :-
+    nth1(Move, Board, Col),
+    insertColumn(Col, Player, ColNew),
+    updateBoard(Board, Move, ColNew, BoardAfter).
+
+insertColumn(['_',X|T], Player, [PlayerPiece, X|T]) :- 
+    playerPiece(Player, PlayerPiece),
+    \+ X == '_'.
+insertColumn(['_'], Player, [PlayerPiece]) :-
+    playerPiece(Player, PlayerPiece).  
+insertColumn([H|T], Player, [H|R]) :-    
+    insertColumn(T, Player, R).
+
+playerPiece(red, x).
+playerPiece(blue, o).
+
+%TODO
+%updateBoard(Board, _, _, Board). %STUB
+/*
+update(Board, Move, ColNew, BoardAfter)
+BoardAfter should be Board with ColNew replacing old column
+*/
+updateBoard([_|T], 1, ColNew, [ColNew|T]).
+updateBoard([H|T], Move, ColNew, [H|X]) :- Move1 is Move-1, updateBoard(T, Move1, ColNew, X).
 
 %win(Board, Player) :- Board, Player. %STUB
 %full(Board) :- Board. %STUB
@@ -337,49 +405,10 @@ getMove(_,_,qq) :-
 %shows all possible columns a player can drop a piece in
 %allValidUserMoves(Board, Player, ListOfCols) :- 
  
-/*
-    integer(N),
-    N >= 1,
-    N =< 7,
-    nth1(N, Board, C),
-    valid_move_column(C).
-valid_move_column([H|_]) :- H = '-'.
-*/
-
-% Insert a piece to board
-/* NOT THIS ONE
-insert(Board, Player, ColNum, BoardAfter) :-
-    insertToCol(
-        col(Col, ColNum,true,_,_,_,_),
-        Player, CAfter),
-    updateBoard(Board, Col, CAfter, BoardAfter).
-
-insertToCol(Col, ColNum, Player, CAfter) :- 
-    col(ColNum,true,empty,0,0,[empty,empty,empty,empty,empty,empty]).
-*/
 
 
 
-%%update_board([H|T], 1, C, [C|T]).
-%update_board([H|T], N, C, [H|R]) :- 
-%   N2 is N-1, update_board(T, N2, C, R).
 
-%updateBoard(Board, Col, CAfter, BoardAfter) :-
-    
-
-/*
-% Insert a piece to board
-insert(Board, Player, Col, BoardAfter) :-
-    nth1(Col, Board, C), % gives us the desired Column of Board as C
-    insertToCol(C, Player, CAfter),
-    updateBoard(Board, Col, CAfter, BoardAfter).
-
-
-% Insert a piece into a specificed column
-insertToCol(['-',X|T], Colour, [Colour,X|T]) :- \+X = '-'.
-insertToCol(['-'], Colour, [Colour]).
-insertToCol([H|T], Colour, [H|R]) :- insertToCol(T, Colour, R).
-*/
 
 
 
@@ -453,7 +482,6 @@ initBoardFull([
     ['_', '_', '_', '_', '_', '_']
     ]).
 
-% [['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_'],['_', '_', '_', '_', '_', '_']]
 
 /*    
 initBoardExample :- [
@@ -469,44 +497,38 @@ initBoardExample :- [
     
     
 displayBoardExample :- 
-    print(' |_|_|_|_|_|_|_| '),
+    write(' |_|_|_|_|_|_|_| '),
     nl,    
-    print(' |_|_|_|_|_|_|_| '),
+    write(' |_|_|_|_|_|_|_| '),
     nl,    
-    print(' |_|_|_|_|_|_|_| '),
+    write(' |_|_|_|_|_|_|_| '),
     nl,    
-    print(' |_|_|_|_|_|_|_| '),
+    write(' |_|_|_|_|_|_|_| '),
     nl,    
-    print(' |_|_|_|_|_|_|_| '),
+    write(' |_|_|_|_|_|_|_| '),
     nl,    
-    print(' |_|_|_|_|_|_|_| ').
+    write(' |_|_|_|_|_|_|_| ').
 
 % display board row by row (?)
 %displayBoard
 
 % display board row by row (?)
-displayBoard(row(6)) :-
-    displayRow(row(6)).
-displayBoard(row(Y)) :-
-    displayRow(row(Y)),
-    nl,
-    Y1 is Y+1,
-    displayBoard(row(Y1)).
+displayBoard(Board) :-
+    transpose(Board, BoardNew),
+    displayRows(BoardNew).
 
-displayRow(row(Y)) :- 
+displayRows([]).
+displayRows([H|T]) :- 
     write(' |'),         
-    displaySquares(col(1),row(Y)).
+    displaySquares(H),
+    nl,
+    displayRows(T).
 
-displaySquares(col(7),row(Y)) :-
-    square(col(7),row(Y),Piece),
-    write(Piece),
-    write('|').
-displaySquares(col(X),row(Y)) :-
-    square(col(X),row(Y),Piece),
-    write(Piece),
+displaySquares([]).
+displaySquares([H|T]) :-
+    write(H),
     write('|'),
-    X1 is X + 1,
-    displaySquares(col(X1), row(Y)).
+    displaySquares(T).
 
     /*
 */
