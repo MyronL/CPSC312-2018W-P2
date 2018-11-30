@@ -345,10 +345,6 @@ columnScore(_,0,_,_,0).
 columnScore(Board,_,_,_,0) :- full(Board).
 columnScore(Board,_,_,Column,-42) :- \+ validCpuMove(Board, Column).
 columnScore(Board,_,Player,Column,Score) :-
-    canWin(Board, Player, Column),
-    movesLeft(Board, MovesLeft),
-    Score is ((MovesLeft - 1)//2).
-columnScore(Board,_,_,Column,Score) :-
     canWin(Board, x, Column),
     movesLeft(Board, MovesLeft),
     Score is ((MovesLeft - 1)//2).
