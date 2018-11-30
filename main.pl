@@ -117,6 +117,7 @@ gameTurnMachine(Board, Player) :-
     nl,
     write('Machine\'s turn'),
     nl,
+    sleep(1),  %slight delay so user comprehends what AI move is
     machineTurn(blue, BoardAfter, BoardMachine),
     displayBoard(BoardMachine),
     gameTurnMachine(BoardMachine, Player).
@@ -165,10 +166,16 @@ diagonalLeft(Board, Player) :-
     N3 is N2 - 1,
     N4 is N3 - 1.
 
-% Checks if board is full
-full(Board) :-
-    \+ (append(_, [Column|_], Board),
-        append(_, [-|_], Column)).
+% full(Board) - Checks if board is full
+full(Board) :- full(Board, 7).
+full(_, 0). 
+%CASE: board full, recursive
+full(Board, N) :-
+    nth1(N, Board, Col),
+    \+ member('_', Col),
+    full(Board, N-1).
+
+
 
 %Use this for getting opposite player.
 %Use as flipPlayer(Player, OtherPlayer).
