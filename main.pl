@@ -649,4 +649,4 @@ testBoardHalfFull([
 %%CHECKING WIN CONDITIONS LIVE:
 %(input these as ?- queries.)
 %testBoardHalfFull(B), gameTurnMachine(B, red, human).
-%testBoardHalfFull(B), gameTurnMachine(B, red, ai).
+%testBoardHalfFull(B), gameTurnMachine(B, red, ai, hard).
