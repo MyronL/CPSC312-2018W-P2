@@ -190,7 +190,8 @@ full(_, 0).
 %CASE: board full, recursive
 full(Board, N) :-
     nth1(N, Board, Col),
-    \+ member('_', Col),
+    playerPiece(empty, EmptySpace),
+    \+ member(EmptySpace, Col),
     N1 is N-1,
     full(Board, N1).
 
@@ -266,12 +267,18 @@ insertToBoard(Board, Move, Player, BoardAfter) :-
 
 % Updating column during Player Move: 
 % CASE: inserting player piece in column top
-insertColumn(['_',X|T], Player, [PlayerPiece, X|T]) :-
+insertColumn([EmptySpace,X|T], Player, [PlayerPiece, X|T]) :-
     playerPiece(Player, PlayerPiece),
-    \+ X == '_'.
+    playerPiece(empty, EmptySpace),
+%    \+ X == '_'.
+    \+ X == EmptySpace.
+    
 % CASE: inserting FIRST piece in column
-insertColumn(['_'], Player, [PlayerPiece]) :-
-    playerPiece(Player, PlayerPiece).
+insertColumn([EmptySpace], Player, [PlayerPiece]) :-
+%    playerPiece(Player, PlayerPiece).
+    playerPiece(Player, PlayerPiece),
+    playerPiece(empty, EmptySpace).
+    
 % CASE: recursive step, skipping present pieces
 insertColumn([H|T], Player, [H|R]) :-
     insertColumn(T, Player, R).
@@ -279,7 +286,7 @@ insertColumn([H|T], Player, [H|R]) :-
 % Player piece definitions:
 playerPiece(red, x). % Player 1
 playerPiece(blue, o). % Player 2
-playerPiece(empty, _).
+playerPiece(empty, _). %empty piece
 
 % Updates board with new column:
 updateBoard([_|T], 1, ColNew, [ColNew|T]). %BASE
@@ -415,8 +422,10 @@ validCpuMove(Board, Move) :-
     integer(Move),
     Move >= 1,
     Move =< 7,
-    nth1(Move, Board, [H|_]),
-    H = '_'.
+    nth1(Move, Board, (H|_)),
+%    H = '_'.
+    H = EmptySpace,
+    playerPiece(empty, EmptySpace).
 
 % Selects the best score by picking the maximum
 selectBestScore(ScoreList, Move) :-
@@ -448,9 +457,13 @@ movesLeft([H|T], Moves) :-
 % Finds how many moves are left in the column
 movesLeftColumn([], 0).
 movesLeftColumn([H|T], Moves) :-
-    dif(H, '_'),
+%    dif(H, '_'),
+    dif(H, EmptySpace),
+    playerPiece(empty, EmptySpace),    
     movesLeftColumn(T, Moves).
-movesLeftColumn(['_'|T], Moves) :-
+%movesLeftColumn(['_'|T], Moves) :-
+movesLeftColumn([EmptySpace|T], Moves) :-
+    playerPiece(empty, EmptySpace),
     movesLeftColumn(T, Move1),
     Moves is Move1 + 1.
 
