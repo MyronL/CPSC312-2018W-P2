@@ -122,55 +122,6 @@ flipPlayer(red, blue).
 flipPlayer(blue, red).
 
 
-gameTurnMachine(Board, _, _) :- win(Board, x), 
-    write('Congratulations Player 1 Wins!'),
-    nl,
-    littleDelay(S),
-    sleep(S),
-    nl,    
-    play.
-gameTurnMachine(Board, _, _) :- win(Board, o), 
-    write('Nice try... AI Wins!'),
-    nl,
-    littleDelay(S),
-    sleep(S),
-    nl,    
-    play.
-gameTurnMachine(Board, _, _) :- full(Board), write('It\'s a tie!').
-gameTurnMachine(Board, Player, human) :-
-    nl,
-    write(Player),
-    write(' player\'s turn:'),
-    nl,
-    write('Moves Available: '),
-    getListOfAvailMoves(Board, ListTotal),
-    write(ListTotal),
-    nl,
-    read(Move),
-    getMove(Player, Move, ListTotal, Board, BoardAfter),
-    displayBoard(BoardAfter),
-    gameTurnMachine(BoardAfter, Player, ai).
-
-gameTurnMachine(Board, Player, ai) :-
-    nl,
-    write('Machine\'s turn'),
-    nl,
-    littleDelay(S),
-    sleep(S),  %slight delay so user comprehends what AI move is
-    machineTurn(blue, Board, BoardMachine),
-    write('Machine Played [#]'), %TODO 
-    nl,
-    displayBoard(BoardMachine),
-    gameTurnMachine(BoardMachine, Player, human).
-
-
-
-%Use this for getting opposite player type.
-%Use as flipPlayerType(PlayerType, OtherPlayerType).
-flipPlayerType(human, ai).
-flipPlayerType(ai, human).
-
-
 
 
 
@@ -321,9 +272,62 @@ initBoardFull([
     ['_', '_', '_', '_', '_', '_']
     ]).
 
+%================ ================ 
+% VS AI GAME HANDLING:
+
+
+gameTurnMachine(Board, _, _) :- win(Board, x), 
+    write('Congratulations Player 1 Wins!'),
+    nl,
+    littleDelay(S),
+    sleep(S),
+    nl,    
+    play.
+gameTurnMachine(Board, _, _) :- win(Board, o), 
+    write('Nice try... AI Wins!'),
+    nl,
+    littleDelay(S),
+    sleep(S),
+    nl,    
+    play.
+gameTurnMachine(Board, _, _) :- full(Board), write('It\'s a tie!').
+gameTurnMachine(Board, Player, human) :-
+    nl,
+    write(Player),
+    write(' player\'s turn:'),
+    nl,
+    write('Moves Available: '),
+    getListOfAvailMoves(Board, ListTotal),
+    write(ListTotal),
+    nl,
+    read(Move),
+    getMove(Player, Move, ListTotal, Board, BoardAfter),
+    displayBoard(BoardAfter),
+    gameTurnMachine(BoardAfter, Player, ai).
+
+gameTurnMachine(Board, Player, ai) :-
+    nl,
+    write('Machine\'s turn'),
+    nl,
+    littleDelay(S),
+    sleep(S),  %slight delay so user comprehends what AI move is
+    machineTurn(blue, Board, BoardMachine),
+    write('Machine Played [#]'), %TODO 
+    nl,
+    displayBoard(BoardMachine),
+    gameTurnMachine(BoardMachine, Player, human).
+
+
+%Use this for getting opposite player type.
+%Use as flipPlayerType(PlayerType, OtherPlayerType).
+flipPlayerType(human, ai).
+flipPlayerType(ai, human).
+
+
+
 % TODO
 %================ ================ 
-%AI 
+%AI Version 1
 machineTurn(_, Board, Board) :- win(Board, x).
 machineTurn(Player, Board, BoardAfter) :-
     selectMove(Board, 5, Player, Move),
@@ -346,7 +350,7 @@ selectMove(Board, Depth, Player, Move) :-
 columnScore(_,0,_,_,0).
 columnScore(Board,_,_,_,0) :- full(Board).
 columnScore(Board,_,_,Column,-42) :- \+ validCpuMove(Board, Column).
-columnScore(Board,_,Player,Column,Score) :-
+columnScore(Board,_,_,Column,Score) :-
     canWin(Board, x, Column),
     movesLeft(Board, MovesLeft),
     Score is ((MovesLeft - 1)//2).
