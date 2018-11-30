@@ -353,8 +353,6 @@ gameTurnMachine(Board, Player, ai, Difficulty) :-
     nl,
     write('Machine\'s turn'),
     nl,
-    littleDelay(S),
-    sleep(S),  %slight delay so user comprehends what AI move is
     machineTurn(blue, Board, BoardMachine, Difficulty),
     nl,
     displayBoard(BoardMachine),
@@ -382,32 +380,29 @@ machineTurn(Player, Board, BoardAfter, supereasy) :-
     length(ListTotal, N),
     random(1, N, Pick),
     nth1(Pick, ListTotal, Move),   
-    write('Machine Played '),
-    write(Move),
-    nl,
-    insertToBoard(Board, Move, Player, BoardAfter).
+    machineMove(Board, Move, Player, BoardAfter).
 
 % Easy AI
 machineTurn(Player, Board, BoardAfter, easy) :-
     selectMove(Board, 2, o, Move),
-    write('Machine Played '),
-    write(Move),
-    nl,
-    insertToBoard(Board, Move, Player, BoardAfter).
+    machineMove(Board, Move, Player, BoardAfter).
 
 % Hard AI
 machineTurn(Player, Board, BoardAfter, hard) :-
     selectMove(Board, 4, o, Move),
-    write('Machine Played '),
-    write(Move),
-    nl,
-    insertToBoard(Board, Move, Player, BoardAfter).
+    machineMove(Board, Move, Player, BoardAfter).
 
 % Insane AI
 machineTurn(Player, Board, BoardAfter, insane) :-
     selectMove(Board, 6, o, Move),
+    machineMove(Board, Move, Player, BoardAfter).
+
+% Common Helper to facilitate AI moves
+machineMove(Board, Move, Player, BoardAfter) :-
     write('Machine Played '),
     write(Move),
+    superQuickDelay(S),
+    sleep(S),  %slight delay so user comprehends what AI move is    
     nl,
     insertToBoard(Board, Move, Player, BoardAfter).
 
