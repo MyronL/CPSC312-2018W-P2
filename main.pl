@@ -553,3 +553,9 @@ testBoardHalfFull([
 %(input these as ?- queries.)
 %testBoardHalfFull(B), gameTurnMachine(B, red, human).
 %testBoardHalfFull(B), gameTurnMachine(B, red, ai).
+
+/*
+Acknowledgements and references:
+https://github.com/rvinas/connect-4-prolog/blob/master/connect4.pl
+https://github.com/csatterfield/connect_four/blob/master/connect_four.pl
+*/
