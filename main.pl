@@ -16,6 +16,10 @@ red.
 blue.
 empty.
 
+%GLOBAL VARS FOR DELAYS
+superQuickDelay(0.6).
+littleDelay(0.9).
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 UI DISPLAY SECTION:
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -80,8 +84,20 @@ play_mode(_) :-
     print('Good bye'),
     abort.
 
-gameTurn(Board, _) :- win(Board, x), write('Congratulations Player 1 Wins!').
-gameTurn(Board, _) :- win(Board, o), write('Congratulations Player 2 Wins!').
+gameTurn(Board, _) :- win(Board, x), 
+    write('Congratulations Player 1 Wins!'),
+    nl,
+    littleDelay(S),
+    sleep(S),
+    nl,    
+    play.
+gameTurn(Board, _) :- win(Board, o), 
+    write('Congratulations Player 2 Wins!'),
+    nl,    
+    littleDelay(S),
+    sleep(S),
+    nl,
+    play.
 gameTurn(Board, _) :- full(Board), write('It\'s a tie!').
 gameTurn(Board, Player) :-
     nl,
@@ -106,8 +122,20 @@ flipPlayer(red, blue).
 flipPlayer(blue, red).
 
 
-gameTurnMachine(Board, _, _) :- win(Board, x), write('Congratulations Player 1 Wins!').
-gameTurnMachine(Board, _, _) :- win(Board, o), write('Nice try... AI Wins!').
+gameTurnMachine(Board, _, _) :- win(Board, x), 
+    write('Congratulations Player 1 Wins!'),
+    nl,
+    littleDelay(S),
+    sleep(S),
+    nl,    
+    play.
+gameTurnMachine(Board, _, _) :- win(Board, o), 
+    write('Nice try... AI Wins!'),
+    nl,
+    littleDelay(S),
+    sleep(S),
+    nl,    
+    play.
 gameTurnMachine(Board, _, _) :- full(Board), write('It\'s a tie!').
 gameTurnMachine(Board, Player, human) :-
     nl,
@@ -121,20 +149,19 @@ gameTurnMachine(Board, Player, human) :-
     read(Move),
     getMove(Player, Move, ListTotal, Board, BoardAfter),
     displayBoard(BoardAfter),
-%    flipPlayerType(PlayerType, OtherPlayerType),
     gameTurnMachine(BoardAfter, Player, ai).
 
 gameTurnMachine(Board, Player, ai) :-
     nl,
     write('Machine\'s turn'),
     nl,
-    sleep(1),  %slight delay so user comprehends what AI move is
+    littleDelay(S),
+    sleep(S),  %slight delay so user comprehends what AI move is
     machineTurn(blue, Board, BoardMachine),
-    write('Machine Played [#]'),
+    write('Machine Played [#]'), %TODO 
     nl,
     displayBoard(BoardMachine),
     gameTurnMachine(BoardMachine, Player, human).
-
 
 
 
@@ -243,7 +270,7 @@ getMove(blue, Move, _, _, _) :-
     play.
 getMove(red, Move, _, _, _) :-
     isConcede(Move),
-    write('Red player has condeded'),
+    write('Red player has conceded'),
     nl,
     nl,
     play.
