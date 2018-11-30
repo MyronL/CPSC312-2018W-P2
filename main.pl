@@ -8,7 +8,7 @@ littleDelay(0.9).
 % Player piece definitions:
 playerPiece(red, x). % Player 1
 playerPiece(blue, o). % Player 2
-playerPiece(empty, _). %empty piece
+playerPiece(empty, '_'). %empty piece
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 UI + CONTROLS PLAY SECTION:
@@ -390,12 +390,22 @@ machineTurn(Player, Board, BoardAfter, easy) :-
 % Hard AI
 machineTurn(Player, Board, BoardAfter, hard) :-
     selectMove(Board, 4, o, Move),
-    machineMove(Board, Move, Player, BoardAfter).
+    write('Machine Played '),
+    write(Move),
+    superQuickDelay(S),
+    sleep(S),  %slight delay so user comprehends what AI move is    
+    nl,
+    insertToBoard(Board, Move, Player, BoardAfter).
 
 % Insane AI
 machineTurn(Player, Board, BoardAfter, insane) :-
     selectMove(Board, 6, o, Move),
-    machineMove(Board, Move, Player, BoardAfter).
+    write('Machine Played '),
+    write(Move),
+    superQuickDelay(S),
+    sleep(S),  %slight delay so user comprehends what AI move is    
+    nl,
+    insertToBoard(Board, Move, Player, BoardAfter).
 
 % Common Helper to facilitate AI moves
 machineMove(Board, Move, Player, BoardAfter) :-
@@ -458,9 +468,8 @@ validCpuMove(Board, Move) :-
     integer(Move),
     Move >= 1,
     Move =< 7,
-    nth1(Move, Board, (H|_)),
-    H = EmptySpace,
-    playerPiece(empty, EmptySpace).
+    nth1(Move, Board, [H|_]),
+    H = '_'.
 
 % Selects the best score by picking the maximum
 selectBestScore(ScoreList, Move) :-
@@ -481,8 +490,6 @@ selectMax([], -42).
 selectMax([H|T], Max) :-
     selectMax(T, Max2),
     Max is max(H,Max2).
-selectMax([_|T], Max) :-
-    selectMax(T, Max).
 
 % Finds how many moves are left on the board
 movesLeft([], 0).
@@ -494,12 +501,9 @@ movesLeft([H|T], Moves) :-
 % Finds how many moves are left in the column
 movesLeftColumn([], 0).
 movesLeftColumn([H|T], Moves) :-
-    dif(H, EmptySpace),
-    playerPiece(empty, EmptySpace),    
+    dif(H, '_'),
     movesLeftColumn(T, Moves).
-
-movesLeftColumn([EmptySpace|T], Moves) :-
-    playerPiece(empty, EmptySpace),
+movesLeftColumn(['_'|T], Moves) :-
     movesLeftColumn(T, Move1),
     Moves is Move1 + 1.
 
