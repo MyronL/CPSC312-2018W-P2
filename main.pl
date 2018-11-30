@@ -511,11 +511,14 @@ canWin(Board, Player, Column) :-
     insertToBoard(Board, Column, Player1, BoardAfter),
     win(BoardAfter, Player).
 
+%% Experimental: "Las Vegas Mode" 
 
-
+% TODO: players in "Las Vegas Mode" are betters,
+% winning the most money by correctly picking which AI will win
 flipBetType(green, gold).
 flipBetType(gold, green).
 
+% GameTurn: AI VS AI Machine 1 wins scenario
 gameTurnVegas(Board, _, _, _, _) :- win(Board, x), 
     write('Congratulations Machine 1 (red) Wins!'),
     nl,
@@ -524,7 +527,7 @@ gameTurnVegas(Board, _, _, _, _) :- win(Board, x),
     nl,    
     play.
 
-% GameTurn: PVP Player 2 wins scenario
+% GameTurn: AI VS AI Machine 2 wins scenario
 gameTurnVegas(Board, _, _, _, _):- win(Board, o), 
     write('Congratulations Machine 2 (blue) Wins!'),
     nl,    
@@ -549,7 +552,7 @@ gameTurnVegas(Board, Player, ai, AiRedLvl, AIBlueLvl) :-
     gameTurnVegas(BoardMachine, OtherPlayer, ai, AiRedLvl, AIBlueLvl).    
 
 % returns the correct AI lvl for Las Vegas Mode (AI vs AI)
-% use as vegasAILVLMatch(Player, Difficulty).
+% use as vegasAILVLMatch(Player, AiRedLvl, AIBlueLvl, Difficulty).
 vegasAILVLMatch(red, AiRedLvl, _, AiRedLvl).
 vegasAILVLMatch(blue, _, AIBlueLvl, AIBlueLvl).
 
