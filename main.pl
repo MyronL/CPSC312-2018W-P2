@@ -6,7 +6,7 @@ superQuickDelay(0.6).
 littleDelay(0.9).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PLAY SECTION:
+UI + CONTROLS PLAY SECTION:
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 %%%%% TO LOAD GAME:
@@ -51,7 +51,8 @@ mainOptionsScreen :- nl,
 play_mode(1) :- print('Playing against your friend'),
     nl,
     print('Ready... 3. 2.. 1...'),
-    sleep(0.6),
+    superQuickDelay(G),
+    sleep(G),
     nl,
     print('GO!'),
     nl,
@@ -63,7 +64,8 @@ play_mode(1) :- print('Playing against your friend'),
 play_mode(2) :- print('Playing against AI'),
     nl,
     print('Ready... 3. 2.. 1...'),
-    sleep(0.6),
+    superQuickDelay(G),
+    sleep(G),
     nl,
     print('GO!'),
     nl,
@@ -423,7 +425,7 @@ canWin(Board, Player, Column) :-
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-UI DISPLAY SECTION:
+UI BOARD RENDERING SECTION:
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
@@ -450,7 +452,7 @@ initBoardFullWider([
     [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
     [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
     [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
-    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
+    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ ']
     ]).
 
 
@@ -462,6 +464,7 @@ displayBoard(Board) :-
     transpose(Board, BoardNew),
     displayRows(BoardNew).
 
+% display single row
 displayRows([]).
 displayRows([H|T]) :-
     write(' |'),
@@ -469,6 +472,7 @@ displayRows([H|T]) :-
     nl,
     displayRows(T).
 
+% display square lines
 displaySquares([]).
 displaySquares([H|T]) :-
     write(H),
