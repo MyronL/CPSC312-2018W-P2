@@ -312,7 +312,6 @@ gameTurnMachine(Board, Player, ai) :-
     littleDelay(S),
     sleep(S),  %slight delay so user comprehends what AI move is
     machineTurn(blue, Board, BoardMachine),
-    write('Machine Played [#]'), %TODO 
     nl,
     displayBoard(BoardMachine),
     gameTurnMachine(BoardMachine, Player, human).
@@ -330,7 +329,10 @@ flipPlayerType(ai, human).
 %AI Version 1
 machineTurn(_, Board, Board) :- win(Board, x).
 machineTurn(Player, Board, BoardAfter) :-
-    selectMove(Board, 4, Player, Move),
+    selectMove(Board, 5, Player, Move),
+    write('Machine Played '),
+    write(Move),
+    nl,
     insertToBoard(Board, Move, Player, BoardAfter).
 
 % Select Move gets best move
@@ -373,7 +375,7 @@ validCpuMove(Board, Move) :-
     integer(Move),
     Move >= 1,
     Move =< 7,
-    nth1(Move, Board, [H|_]),
+    nth1(Move, Board, (H|_)),
     H = '_'.
 
 
