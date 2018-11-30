@@ -1,20 +1,5 @@
-:- use_module(library(clpfd)).
-:- use_module(library(lists)).
-
-player(playerType(_), gameState(_), listOfMoves).
-
-%-- PlayerType is the two players in the game
-%data PlayerType = North | South
-%  deriving (Eq, Show)
-
-playerType(red).
-playerType(blue).
-player(blue).
-player(red).
-
-red.
-blue.
-empty.
+:- use_module(library(clpfd)). %for transpose
+:- use_module(library(lists)). %for nth1
 
 %GLOBAL VARS FOR DELAYS
 superQuickDelay(0.6).
@@ -24,6 +9,17 @@ littleDelay(0.9).
 PLAY SECTION:
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+%%%%% TO LOAD GAME:
+% simply enter ?-play.
+play :- welcomeScreen,
+    nl,
+    mainOptionsScreen,
+    nl,
+    read(X),
+    play_mode(X).
+
+
+%print the initial welcome screen
 welcomeScreen :- print('**************************************'),
     nl,
     print('*                                   *'),
@@ -38,6 +34,7 @@ welcomeScreen :- print('**************************************'),
     nl,
     print(' play at your own risk...').
 
+%print the initial Main Options Screen
 mainOptionsScreen :- nl,
     print('START MENU:'),
     nl,
@@ -50,14 +47,7 @@ mainOptionsScreen :- nl,
     nl.
 
 
-play :- welcomeScreen,
-    nl,
-    mainOptionsScreen,
-    nl,
-    read(X),
-    play_mode(X).
-
-
+% handling for PVP mode when selected:
 play_mode(1) :- print('Playing against your friend'),
     nl,
     print('Ready... 3. 2.. 1...'),
@@ -69,6 +59,7 @@ play_mode(1) :- print('Playing against your friend'),
     displayBoard(B),
     gameTurn(B, red).
 
+% handling for VS AI mode when selected:
 play_mode(2) :- print('Playing against AI'),
     nl,
     print('Ready... 3. 2.. 1...'),
@@ -80,25 +71,35 @@ play_mode(2) :- print('Playing against AI'),
     displayBoard(B),
     gameTurnMachine(B, red, human).
 
+% handling for exit-game when selected:
 play_mode(_) :-
     print('Good bye'),
     abort.
 
+% GameTurn: 
+
+% GameTurn: PVP Player 1 wins scenario
 gameTurn(Board, _) :- win(Board, x), 
-    write('Congratulations Player 1 Wins!'),
+    write('Congratulations Player 1 (red) Wins!'),
     nl,
     littleDelay(S),
     sleep(S),
     nl,    
     play.
+
+% GameTurn: PVP Player 2 wins scenario
 gameTurn(Board, _) :- win(Board, o), 
-    write('Congratulations Player 2 Wins!'),
+    write('Congratulations Player 2 (blue) Wins!'),
     nl,    
     littleDelay(S),
     sleep(S),
     nl,
     play.
+
+% GameTurn: Draw scenario
 gameTurn(Board, _) :- full(Board), write('It\'s a tie!').
+
+% GameTurn: Turn-by-turn scenario:
 gameTurn(Board, Player) :-
     nl,
     write(Player),
@@ -120,28 +121,33 @@ gameTurn(Board, Player) :-
 %Use as flipPlayer(Player, OtherPlayer).
 flipPlayer(red, blue).
 flipPlayer(blue, red).
+flipPlayer(p1, p2).
+flipPlayer(p2, p1).
 
 
-
-
-
-
+%=============== ============
 % Winning Conditions
 win(Board, Player) :- rowWin(Board, Player).
 win(Board, Player) :- columnWin(Board, Player).
 win(Board, Player) :- diagonalWin(Board, Player).
 
+% Win by 4 consecutive pieces in a column
 columnWin(Board, Player) :-
     append(_, [Column|_], Board),
     append(_, [Player, Player, Player, Player|_], Column).
 
+% Win by 4 consecutive pieces in a row
 rowWin(Board, Player) :-
     transpose(Board, Board1),
     columnWin(Board1, Player).
 
+% Win by 4 consecutive pieces in a diagonal (\)
 diagonalWin(Board, Player) :- diagonalRight(Board, Player).
+
+% Win by 4 consecutive pieces in a diagonal (/)
 diagonalWin(Board, Player) :- diagonalLeft(Board, Player).
 
+% helper for checking diagonal (\)
 diagonalRight(Board, Player) :-
     append(_, [Column1, Column2, Column3, Column4|_], Board),
     append(Elem1, [Player|_], Column1),
@@ -156,6 +162,7 @@ diagonalRight(Board, Player) :-
     N3 is N2 + 1,
     N4 is N3 + 1.
 
+% helper for checking diagonal (/)
 diagonalLeft(Board, Player) :-
     append(_, [Column1, Column2, Column3, Column4|_], Board),
     append(Elem1, [Player|_], Column1),
@@ -183,14 +190,8 @@ full(Board, N) :-
     full(Board, N1).
 
 
-
-
-
-%USE THIS
-showListTotal([]).
-showListTotal([H|T]) :-
-    write(H),
-    showListTotal(T).
+% getListOfAvailMoves(Board, ListTotal)
+% Get list of free, available columns in a board
 
 getListOfAvailMoves(Board, ListTotal) :-
     getListOfAvailMoves(7, Board, [], ListTotal).
@@ -208,23 +209,33 @@ getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
     Count1 is Count-1,
     getListOfAvailMoves(Count1, Board, Acc, ListTotal).
 
+%check if this column is free (has space)
 columnFree(Column) :- member('_',Column).
 
+
+% UI+Control handler to get moves
+% OK Case
 getMove(Player, Move, ListOfMoves, Board, BoardAfter) :-
     member(Move, ListOfMoves),
     insertToBoard(Board, Move, Player, BoardAfter).
+
+% P2 Blue Concede Case
 getMove(blue, Move, _, _, _) :-
     isConcede(Move),
-    write('Blue player has conceded'),
+    write('Player 2 (blue) has conceded'),
     nl,
     nl,
     play.
+
+% P1 Red Concede Case
 getMove(red, Move, _, _, _) :-
     isConcede(Move),
-    write('Red player has conceded'),
+    write('Player 1 (red) has conceded'),
     nl,
     nl,
     play.
+
+% Invalid Input Case
 getMove(Player, _, ListOfMoves, Board, BoardAfter) :-
     write('Not valid move. Please select a valid move '),
     write(ListOfMoves),
@@ -233,7 +244,7 @@ getMove(Player, _, ListOfMoves, Board, BoardAfter) :-
     nl,
     getMove(Player, NewMove, ListOfMoves, Board, BoardAfter).
 
-
+% Helper: check if move is concede input
 isConcede(Move) :- Move == qq.
 
 insertToBoard(Board, Move, Player, BoardAfter) :-
@@ -425,6 +436,7 @@ UI DISPLAY SECTION:
 
 % display board row by row (?)
 displayBoard(Board) :-
+    write('|1|2|3|4|5|6|7|'),nl,nl,
     transpose(Board, BoardNew),
     displayRows(BoardNew).
 
@@ -448,7 +460,7 @@ TESTING SECTION:
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-
+% Game Board: x wins, with connected-4 as column
 testBoardColWinX([
     ['_', '_', '_', '_', '_', 'o'],
     ['_', '_', 'x', 'x', 'x', 'x'],
@@ -459,6 +471,7 @@ testBoardColWinX([
     ['_', '_', '_', '_', '_', '_']
     ]).
 
+% Game Board: o wins, with connected-4 as row
 testBoardRowWinO([
     ['_', '_', '_', '_', '_', 'o'],
     ['_', '_', 'x', 'x', 'x', 'o'],
@@ -485,7 +498,7 @@ testBoardRowWinO([
 %testBoardRowWinO(B), gameTurnMachine(B, red, human). %AI wins
 
 
-
+% Game Board: x wins, with connected-4 as diagonal (\)
 testBoardDiagWinX([
     ['_', '_', 'x', 'o', 'o', 'x'],
     ['_', '_', '_', 'x', 'o', 'o'],
@@ -496,6 +509,7 @@ testBoardDiagWinX([
     ['_', '_', '_', '_', '_', '_']
     ]).
 
+% % Game Board: o wins, with connected-4 as diagonal (/)
 testBoardDiagWinO([
     ['_', '_', '_', '_', '_', 'o'],
     ['_', '_', '_', '_', 'o', 'x'],
@@ -521,6 +535,7 @@ testBoardDiagWinO([
 %testBoardDiagWinO(B), gameTurnMachine(B, red, human). %AI wins
 %testBoardDiagWinO(B), gameTurnMachine(B, red, ai). %AI wins
 
+% Game Board: draw; no one wins; filled board
 testBoardIsFullDraw([
     ['x', 'x', 'x', 'o', 'o', 'o'],
     ['x', 'o', 'o', 'x', 'x', 'x'],
@@ -541,7 +556,8 @@ testBoardIsFullDraw([
 %testBoardIsFullDraw(B), gameTurnMachine(B, red, human). %Tie Game
 %testBoardIsFullDraw(B), gameTurnMachine(B, red, ai). %Tie Game
 
-
+% Game Board: game in progress; no one wins; 
+% half-filled board
 testBoardHalfFull([
     ['x', 'x', 'x', 'o', 'o', 'o'],
     ['x', 'o', 'o', 'x', 'x', 'x'],
@@ -559,9 +575,3 @@ testBoardHalfFull([
 %(input these as ?- queries.)
 %testBoardHalfFull(B), gameTurnMachine(B, red, human).
 %testBoardHalfFull(B), gameTurnMachine(B, red, ai).
-
-/*
-Acknowledgements and references:
-https://github.com/rvinas/connect-4-prolog/blob/master/connect4.pl
-https://github.com/csatterfield/connect_four/blob/master/connect_four.pl
-*/
