@@ -65,6 +65,7 @@ play_mode(2) :- print('Playing against AI'),
     nl,
     print('Select difficulty [easy,hard]'),
     read(Difficulty),
+    checkInvalidLevel(Valid, Difficulty),
     nl,
     print('Ready... 3. 2.. 1...'),
     superQuickDelay(G),
@@ -74,7 +75,7 @@ play_mode(2) :- print('Playing against AI'),
     nl,
     initBoardFull(B),
     displayBoard(B),
-    gameTurnMachine(B, red, human, Difficulty).
+    gameTurnMachine(B, red, human, Valid).
 
 % handling for exit-game when selected:
 play_mode(_) :-
@@ -129,6 +130,14 @@ flipPlayer(blue, red).
 flipPlayer(p1, p2).
 flipPlayer(p2, p1).
 
+checkInvalidLevel(D, hard) :- D = hard.
+checkInvalidLevel(D, easy) :- D = easy.
+checkInvalidLevel(D, _) :-
+    nl,
+    write('Invalid level, please enter one: [easy, hard]'),
+    nl,
+    read(C),
+    checkInvalidLevel(D, C).
 
 %=============== ============
 % Winning Conditions
@@ -653,4 +662,4 @@ testBoardHalfFull([
 %%CHECKING WIN CONDITIONS LIVE:
 %(input these as ?- queries.)
 %testBoardHalfFull(B), gameTurnMachine(B, red, human).
-%testBoardHalfFull(B), gameTurnMachine(B, red, ai).
+%testBoardHalfFull(B), gameTurnMachine(B, red, ai, hard).
