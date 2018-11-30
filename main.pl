@@ -108,6 +108,7 @@ flipPlayer(blue, red).
 
 gameTurnMachine(Board, _, _) :- win(Board, x), write('Congratulations Player 1 Wins!').
 gameTurnMachine(Board, _, _) :- win(Board, o), write('Nice try... AI Wins!').
+gameTurnMachine(Board, _, _) :- full(Board), write('It\'s a tie!').
 gameTurnMachine(Board, Player, human) :-
     nl,
     write(Player),
@@ -495,5 +496,5 @@ testBoardIsFullDraw([
 %(input these as ?- queries.)
 %testBoardIsFullDraw(B), gameTurn(B, _). %Tie Game
 
-%testBoardIsFullDraw(B), gameTurnMachine(B, red, human). %TODO BUG
-%testBoardIsFullDraw(B), gameTurnMachine(B, red, ai). %TODO BUG
+%testBoardIsFullDraw(B), gameTurnMachine(B, red, human). %Tie Game
+%testBoardIsFullDraw(B), gameTurnMachine(B, red, ai). %Tie Game
