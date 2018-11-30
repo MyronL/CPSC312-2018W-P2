@@ -57,7 +57,7 @@ play :- welcomeScreen,
 play_mode(1) :- print('Playing against your friend'),
     nl,
     print('Ready... 3. 2.. 1...'),
-    %sleep(2),
+    sleep(0.6),
     nl,
     print('GO!'),
     nl,
@@ -68,13 +68,13 @@ play_mode(1) :- print('Playing against your friend'),
 play_mode(2) :- print('Playing against AI'),
     nl,
     print('Ready... 3. 2.. 1...'),
-    sleep(2),
+    sleep(0.6),
     nl,
     print('GO!'),
     nl,
     initBoardFull(B),
     displayBoard(B),
-    gameTurnMachine(B, red).
+    gameTurnMachine(B, red, human).
 
 play_mode(_) :-
     print('Good bye'),
@@ -100,9 +100,15 @@ gameTurn(Board, Player) :-
     flipPlayer(Player, OtherPlayer),
     gameTurn(BoardAfter, OtherPlayer).
 
-gameTurnMachine(Board, _) :- win(Board, x), write('Congratulations Player 1 Wins!').
-gameTurnMachine(Board, _) :- win(Board, o), write('Nice try!').
-gameTurnMachine(Board, Player) :-
+%Use this for getting opposite player.
+%Use as flipPlayer(Player, OtherPlayer).
+flipPlayer(red, blue).
+flipPlayer(blue, red).
+
+
+gameTurnMachine(Board, _, _) :- win(Board, x), write('Congratulations Player 1 Wins!').
+gameTurnMachine(Board, _, _) :- win(Board, o), write('Nice try... AI Wins!').
+gameTurnMachine(Board, Player, human) :-
     nl,
     write(Player),
     write(' player\'s turn:'),
@@ -114,13 +120,32 @@ gameTurnMachine(Board, Player) :-
     read(Move),
     getMove(Player, Move, ListTotal, Board, BoardAfter),
     displayBoard(BoardAfter),
+%    flipPlayerType(PlayerType, OtherPlayerType),
+    gameTurnMachine(BoardAfter, Player, ai).
+
+gameTurnMachine(Board, Player, ai) :-
     nl,
     write('Machine\'s turn'),
     nl,
     sleep(1),  %slight delay so user comprehends what AI move is
-    machineTurn(blue, BoardAfter, BoardMachine),
+    machineTurn(blue, Board, BoardMachine),
+    write('Machine Played [#]'),
+    nl,
     displayBoard(BoardMachine),
-    gameTurnMachine(BoardMachine, Player).
+    gameTurnMachine(BoardMachine, Player, human).
+
+
+
+
+%Use this for getting opposite player type.
+%Use as flipPlayerType(PlayerType, OtherPlayerType).
+flipPlayerType(human, ai).
+flipPlayerType(ai, human).
+
+
+
+
+
 
 % Winning Conditions
 win(Board, Player) :- rowWin(Board, Player).
@@ -177,10 +202,7 @@ full(Board, N) :-
 
 
 
-%Use this for getting opposite player.
-%Use as flipPlayer(Player, OtherPlayer).
-flipPlayer(red, blue).
-flipPlayer(blue, red).
+
 
 %USE THIS
 showListTotal([]).
@@ -247,6 +269,7 @@ insertColumn([H|T], Player, [H|R]) :-
 
 playerPiece(red, x).
 playerPiece(blue, o).
+playerPiece(empty, _).
 
 updateBoard([_|T], 1, ColNew, [ColNew|T]).
 updateBoard([H|T], Move, ColNew, [H|X]) :- Move1 is Move-1, updateBoard(T, Move1, ColNew, X).
