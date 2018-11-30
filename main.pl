@@ -191,6 +191,8 @@ diagonalLeft(Board, Player) :-
     N3 is N2 - 1,
     N4 is N3 - 1.
 
+
+% FOR TIE GAMES:
 % full(Board) - Checks if board is full
 full(Board) :- full(Board, 7).
 full(_, 0). 
@@ -198,7 +200,8 @@ full(_, 0).
 full(Board, N) :-
     nth1(N, Board, Col),
     \+ member('_', Col),
-    full(Board, N-1).
+    N1 is N-1,
+    full(Board, N1).
 
 
 
@@ -426,11 +429,17 @@ testBoardRowWinO([
 %testBoardColWinX(B), win(B, x). %B= matrix from testBoardColWinX
 %testBoardColWinX(B), win(B, o). %false
 %testBoardRowWinO(B), win(B, o). %B= matrix from testBoardRowWinO
-%testBoardColWinO(B), win(B, x). %false
+%testBoardRowWinO(B), win(B, x). %false
 
 %CHECKING WIN CONDITIONS LIVE:
+%(input these as ?- queries.)
 %testBoardColWinX(B), gameTurn(B, _). %Player1 wins
 %testBoardRowWinO(B), gameTurn(B, _). %Player2 wins
+%
+%testBoardColWinX(B), gameTurnMachine(B, red, ai). %Player1 wins
+%testBoardColWinX(B), gameTurnMachine(B, red, human). %Player1 wins
+%testBoardRowWinO(B), gameTurnMachine(B, red, ai). %AI wins
+%testBoardRowWinO(B), gameTurnMachine(B, red, human). %AI wins
 
 
 
@@ -460,9 +469,14 @@ testBoardDiagWinO([
 %testBoardDiagWinO(B), win(B, x). %false
 
 %CHECKING WIN CONDITIONS LIVE:
+%(input these as ?- queries.)
 %testBoardDiagWinX(B), gameTurn(B, _). %Player1 wins
 %testBoardDiagWinO(B), gameTurn(B, _). %Player2 wins
 
+%testBoardDiagWinX(B), gameTurnMachine(B, red, human). %Player1 wins
+%testBoardDiagWinX(B), gameTurnMachine(B, red, ai). %Player1 wins
+%testBoardDiagWinO(B), gameTurnMachine(B, red, human). %AI wins
+%testBoardDiagWinO(B), gameTurnMachine(B, red, ai). %AI wins
 
 testBoardIsFullDraw([
     ['x', 'x', 'x', 'o', 'o', 'o'],
@@ -476,3 +490,10 @@ testBoardIsFullDraw([
 
 %testBoardIsFullDraw(B), win(B, o). %false
 %testBoardIsFullDraw(B), win(B, x). %false
+
+%CHECKING WIN CONDITIONS LIVE:
+%(input these as ?- queries.)
+%testBoardIsFullDraw(B), gameTurn(B, _). %Tie Game
+
+%testBoardIsFullDraw(B), gameTurnMachine(B, red, human). %TODO BUG
+%testBoardIsFullDraw(B), gameTurnMachine(B, red, ai). %TODO BUG
