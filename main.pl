@@ -4,7 +4,7 @@
 
 
 % Empty Board:
-% - 
+% -
 
 /*
 initBoard :-
@@ -24,8 +24,8 @@ initState(col(1,true,empty,0,0,[]),
           col(5,true,empty,0,0,[]),
           col(6,true,empty,0,0,[]),
           col(7,true,empty,0,0,[])
-          ).          
- 
+          ).
+
 initState(row(1,[]),
           row(2,[]),
           row(3,[]),
@@ -52,16 +52,16 @@ boardState :-
 
 
 %%-- a Move is a piece drop to a column with room in it.
-%move(playerType(PL), col(Num,free,_,TN,L,P)) :- 
+%move(playerType(PL), col(Num,free,_,TN,L,P)) :-
 %    col(Num,free,PL,TN,L+1,[P|PL]).
-%move(playerType(PL), col(Num,free,_,TN,5,P)) :- 
+%move(playerType(PL), col(Num,free,_,TN,5,P)) :-
 %    col(Num,false,PL,TN,6,P).
 
 %move(playerType(PL), ColNum, row(Num,List)) :-
 %          insertPiece(ColNum, row(Num,List))).
 
 %insertPiece(ColNum, row(Num,List)) :-
-    
+
 
 move(concede).
 
@@ -113,13 +113,13 @@ flipPlayer(blue) :- red.
 /*
 
 %Pieces are either
-%empty cell:   '-', empty 
+%empty cell:   '-', empty
 %piece of red player:   'X', red
 %piece of blue player:   'O', blue
  */
 
-standardRows(6).  
-standardCols(7). 
+standardRows(6).
+standardCols(7).
 
 
 col(1).
@@ -138,7 +138,7 @@ row(5).
 row(6).
 
 %%Square is a single square tile on a Connect4 grid
-%It can host either players' piece, 
+%It can host either players' piece,
 %or be empty.
 square(col(_),row(_)) :- empty.
 square(col(_),row(_)) :- red.
@@ -152,7 +152,7 @@ square(col(5),row(_),x).
 square(col(6),row(_),x).
 square(col(7),row(_),x).
 
-fullcol(col(X), 
+fullcol(col(X),
         square(col(X),row(1),_),
         square(col(X),row(2),_),
         square(col(X),row(3),_),
@@ -181,7 +181,7 @@ empty.
 
 
 /*
--- 
+--
 data Square = Square Int Int
     deriving (Show)
 
@@ -206,34 +206,34 @@ UI DISPLAY SECTION:
 
 
 welcomeScreen :- print('**************************************'),
-    nl,   
+    nl,
     print('*                                             *'),
-    nl,     
+    nl,
     print('*        WELCOME TO             *'),
-    nl, 
+    nl,
     print('*   PROLOG CONNECT 4!     *'),
-    nl,     
+    nl,
     print('*                                             *'),
-    nl,      
+    nl,
     print('**************************************'),
     nl,
     print(' play at your own risk...').
 
 
 
-mainOptionsScreen :- nl, 
+mainOptionsScreen :- nl,
     print('START MENU:'),
-    nl,  
-    nl,       
+    nl,
+    nl,
     print('Player VS Player [ Enter 1 ]'),
-    nl, 
+    nl,
     print('Player VS AI [ Enter 2 ]'),
-    nl, 
+    nl,
     print('Exit [ Enter any other key ]'),
-    nl.    
-     
+    nl.
 
-play :- welcomeScreen, 
+
+play :- welcomeScreen,
     nl,
     mainOptionsScreen,
     nl,
@@ -243,7 +243,7 @@ play :- welcomeScreen,
 
 play_mode(1) :- print('Playing against your friend'),
     nl,
-    print('Ready... 3. 2.. 1...'),  
+    print('Ready... 3. 2.. 1...'),
     %sleep(2),
     nl,
     print('GO!'),
@@ -254,7 +254,7 @@ play_mode(1) :- print('Playing against your friend'),
 
 play_mode(2) :- print('Playing against AI'),
     nl,
-    print('Ready... 3. 2.. 1...'),  
+    print('Ready... 3. 2.. 1...'),
     sleep(2),
     nl,
     print('GO!'),
@@ -263,17 +263,19 @@ play_mode(2) :- print('Playing against AI'),
     displayBoard(B),
     gameTurn(B, red, Machine).
 
-play_mode(_) :- 
+play_mode(_) :-
     print('Good bye'),
     abort.
 
 
-%gameTurn(Board, Player) :- 
-%    win(Board, Player), 
+%gameTurn(Board, Player) :-
+%    win(Board, Player),
 %    write(Player), write(' Wins!').
-%gameTurn(Board, _) :- 
-%    full(Board), 
+%gameTurn(Board, _) :-
+%    full(Board),
 %    write('It\'s a Draw!').
+gameTurn(Board, _) :- win(Board, x), write('Congratulations Player 1 Wins!').
+gameTurn(Board, _) :- win(Board, o), write('Congratulations Player 2 Wins!').
 gameTurn(Board, Player) :-
     nl,
     write(Player),
@@ -282,16 +284,16 @@ gameTurn(Board, Player) :-
     write('Moves Available:'),
     getListOfAvailMoves(Board, ListTotal),
     write(ListTotal),
-    nl,    
+    nl,
     write('Please select a column. (Or enter qq to quit)'),
     nl,
     %TODO: display list of available moves here
-    %ONLY list of moves, or concede, 
+    %ONLY list of moves, or concede,
     % are available to players.
     read(Move),
-    getMove(Player, Move, ListTotal, Board, BoardAfter), 
+    getMove(Player, Move, ListTotal, Board, BoardAfter),
 %    userMove(Board, Move, BoardAfter),
-%    insertToBoard(Board, Move, Player, BoardAfter),  
+%    insertToBoard(Board, Move, Player, BoardAfter),
     %displayBoard(BoardAfter),
     displayBoard(BoardAfter), %TODO replace for real game board
     flipPlayer(Player, OtherPlayer),
@@ -314,7 +316,56 @@ gameTurn(Board, Player, Machine) :-
     displayBoard(BoardMachine),
     gameTurn(BoardMachine, Player, Machine).
 
-%Use this for getting opposite player. 
+% Winning Conditions
+win(Board, Player) :- rowWin(Board, Player).
+win(Board, Player) :- columnWin(Board, Player).
+win(Board, Player) :- diagonalWin(Board, Player).
+
+columnWin(Board, Player) :-
+    append(_, [Column|_], Board),
+    append(_, [Player, Player, Player, Player|_], Column).
+
+rowWin(Board, Player) :-
+    transpose(Board, Board1),
+    columnWin(Board1, Player).
+
+diagonalWin(Board, Player) :- diagonalRight(Board, Player).
+diagonalWin(Board, Player) :- diagonalLeft(Board, Player).
+
+diagonalRight(Board, Player) :-
+    append(_, [Column1, Column2, Column3, Column4|_], Board),
+    append(Elem1, [Player|_], Column1),
+    append(Elem2, [Player|_], Column2),
+    append(Elem3, [Player|_], Column3),
+    append(Elem4, [Player|_], Column4),
+    length(Elem1, N1),
+    length(Elem2, N2),
+    length(Elem3, N3),
+    length(Elem4, N4),
+    N2 is N1 + 1,
+    N3 is N2 + 1,
+    N4 is N3 + 1.
+
+diagonalLeft(Board, Player) :-
+    append(_, [Column1, Column2, Column3, Column4|_], Board),
+    append(Elem1, [Player|_], Column1),
+    append(Elem2, [Player|_], Column2),
+    append(Elem3, [Player|_], Column3),
+    append(Elem4, [Player|_], Column4),
+    length(Elem1, N1),
+    length(Elem2, N2),
+    length(Elem3, N3),
+    length(Elem4, N4),
+    N2 is N1 - 1,
+    N3 is N2 - 1,
+    N4 is N3 - 1.
+
+% Checks if board is full
+full(Board) :-
+    \+ (append(_, [Column|_], Board),
+        append(_, [-|_], Column)).
+
+%Use this for getting opposite player.
 %Use as flipPlayer(Player, OtherPlayer).
 flipPlayer(red, blue).
 flipPlayer(blue, red).
@@ -328,7 +379,7 @@ showListTotal([H|T]) :-
     showListTotal(T).
 
 
-getListOfAvailMoves(Board, ListTotal) :- 
+getListOfAvailMoves(Board, ListTotal) :-
     getListOfAvailMoves(7, Board, [], ListTotal).
 %ENDCASE
 getListOfAvailMoves(0, _, ListTotal, ListTotal).
@@ -351,7 +402,7 @@ getListOfAvailMoves(Count, Board, ListTotal) :-
     Count1 is Count+1,
     getListOfAvailMoves(Count1, Board, ListTotal).
     */
-columnFree(Column) :- member('_',Column). 
+columnFree(Column) :- member('_',Column).
 
 
 getMove(Player, Move, ListOfMoves, Board, BoardAfter) :-
@@ -363,7 +414,7 @@ getMove(blue, Move, _, _, _) :-
     nl,
     nl,
     play.
-getMove(red, Move, _, _, _) :- 
+getMove(red, Move, _, _, _) :-
     isConcede(Move),
     write('Red player has condeded'),
     nl,
@@ -391,12 +442,12 @@ insertToBoard(Board, Move, Player, BoardAfter) :-
     insertColumn(Col, Player, ColNew),
     updateBoard(Board, Move, ColNew, BoardAfter).
 
-insertColumn(['_',X|T], Player, [PlayerPiece, X|T]) :- 
+insertColumn(['_',X|T], Player, [PlayerPiece, X|T]) :-
     playerPiece(Player, PlayerPiece),
     \+ X == '_'.
 insertColumn(['_'], Player, [PlayerPiece]) :-
-    playerPiece(Player, PlayerPiece).  
-insertColumn([H|T], Player, [H|R]) :-    
+    playerPiece(Player, PlayerPiece).
+insertColumn([H|T], Player, [H|R]) :-
     insertColumn(T, Player, R).
 
 playerPiece(red, x).
@@ -415,12 +466,12 @@ updateBoard([H|T], Move, ColNew, [H|X]) :- Move1 is Move-1, updateBoard(T, Move1
 %full(Board) :- Board. %STUB
 
 %getMove(Player, Move) :- Player, Move. %STUB %TODO: this gets user kb input as move or concede
-%userMove(Board, Move, BoardAfter):- 
+%userMove(Board, Move, BoardAfter):-
 %    Board, Move, BoardAfter. %STUB
 
 %shows all possible columns a player can drop a piece in
-%allValidUserMoves(Board, Player, ListOfCols) :- 
- 
+%allValidUserMoves(Board, Player, ListOfCols) :-
+
 
 
 
@@ -439,7 +490,7 @@ play_player(Board) :-
     read(N),
 %    insert_piece(Board, x, N, BoardX),
 %    display_board(BoardN),
-    displayBoardExample, 
+    displayBoardExample,
     print('Player O turn:'),
     nl,
     read(N),
@@ -473,7 +524,7 @@ exampleBoard :-
       TN: max. number of consecutive topmost pieces of same colour
       PC: Piece Count
       Ps: List Pieces in this column
- */ 
+ */
 
 /*
 initBoardExample :- [
@@ -488,7 +539,7 @@ initBoardExample :- [
 */
 
 initBoard :- initBoardFull.
-initBoardFull([                   
+initBoardFull([
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_'],
@@ -508,7 +559,7 @@ machineTurn(Player, Board, BoardAfter) :-
 % depth is how far you want to search into a path
 selectMove(Board, Depth, Player, Move).
 
-/*    
+/*
 initBoardExample :- [
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_'],
@@ -519,19 +570,19 @@ initBoardExample :- [
     ['_', '_', '_', '_', '_', '_']
                     ].
 */
-    
-    
-displayBoardExample :- 
+
+
+displayBoardExample :-
     write(' |_|_|_|_|_|_|_| '),
-    nl,    
+    nl,
     write(' |_|_|_|_|_|_|_| '),
-    nl,    
+    nl,
     write(' |_|_|_|_|_|_|_| '),
-    nl,    
+    nl,
     write(' |_|_|_|_|_|_|_| '),
-    nl,    
+    nl,
     write(' |_|_|_|_|_|_|_| '),
-    nl,    
+    nl,
     write(' |_|_|_|_|_|_|_| ').
 
 % display board row by row (?)
@@ -543,8 +594,8 @@ displayBoard(Board) :-
     displayRows(BoardNew).
 
 displayRows([]).
-displayRows([H|T]) :- 
-    write(' |'),         
+displayRows([H|T]) :-
+    write(' |'),
     displaySquares(H),
     nl,
     displayRows(T).
