@@ -5,6 +5,11 @@
 superQuickDelay(0.6).
 littleDelay(0.9).
 
+% Player piece definitions:
+playerPiece(red, x). % Player 1
+playerPiece(blue, o). % Player 2
+playerPiece(empty, _). %empty piece
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 UI + CONTROLS PLAY SECTION:
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -279,12 +284,10 @@ insertToBoard(Board, Move, Player, BoardAfter) :-
 insertColumn([EmptySpace,X|T], Player, [PlayerPiece, X|T]) :-
     playerPiece(Player, PlayerPiece),
     playerPiece(empty, EmptySpace),
-%    \+ X == '_'.
     \+ X == EmptySpace.
     
 % CASE: inserting FIRST piece in column
 insertColumn([EmptySpace], Player, [PlayerPiece]) :-
-%    playerPiece(Player, PlayerPiece).
     playerPiece(Player, PlayerPiece),
     playerPiece(empty, EmptySpace).
     
@@ -292,10 +295,6 @@ insertColumn([EmptySpace], Player, [PlayerPiece]) :-
 insertColumn([H|T], Player, [H|R]) :-
     insertColumn(T, Player, R).
 
-% Player piece definitions:
-playerPiece(red, x). % Player 1
-playerPiece(blue, o). % Player 2
-playerPiece(empty, _). %empty piece
 
 % Updates board with new column:
 updateBoard([_|T], 1, ColNew, [ColNew|T]). %BASE
@@ -314,6 +313,7 @@ gameTurnMachine(Board, _, _, _) :- win(Board, x),
     sleep(S),
     nl,    
     play.
+
 % AI turn win condition
 gameTurnMachine(Board, _, _, _) :- win(Board, o), 
     write('Nice try... AI Wins!'),
@@ -322,9 +322,11 @@ gameTurnMachine(Board, _, _, _) :- win(Board, o),
     sleep(S),
     nl,    
     play.
+
 % Tie
 gameTurnMachine(Board, _, _, _) :- full(Board), write('It\'s a tie!').
-% Human's turn
+
+% % Human's turn
 gameTurnMachine(Board, Player, human, Difficulty) :-
     nl,
     write(Player),
@@ -338,7 +340,8 @@ gameTurnMachine(Board, Player, human, Difficulty) :-
     getMove(Player, Move, ListTotal, Board, BoardAfter),
     displayBoard(BoardAfter),
     gameTurnMachine(BoardAfter, Player, ai, Difficulty).
-% AI's turn
+
+% % AI's turn
 gameTurnMachine(Board, Player, ai, Difficulty) :-
     nl,
     write('Machine\'s turn'),
@@ -364,6 +367,7 @@ flipPlayerType(ai, human).
 % Initiate machine turn
 % Winning condition
 machineTurn(_, Board, Board, _) :- win(Board, x).
+
 % Easy AI
 machineTurn(Player, Board, BoardAfter, easy) :-
     selectMove(Board, 1, o, Move),
@@ -371,6 +375,7 @@ machineTurn(Player, Board, BoardAfter, easy) :-
     write(Move),
     nl,
     insertToBoard(Board, Move, Player, BoardAfter).
+
 % Hard AI
 machineTurn(Player, Board, BoardAfter, hard) :-
     selectMove(Board, 4, o, Move),
@@ -432,7 +437,6 @@ validCpuMove(Board, Move) :-
     Move >= 1,
     Move =< 7,
     nth1(Move, Board, (H|_)),
-%    H = '_'.
     H = EmptySpace,
     playerPiece(empty, EmptySpace).
 
@@ -466,11 +470,10 @@ movesLeft([H|T], Moves) :-
 % Finds how many moves are left in the column
 movesLeftColumn([], 0).
 movesLeftColumn([H|T], Moves) :-
-%    dif(H, '_'),
     dif(H, EmptySpace),
     playerPiece(empty, EmptySpace),    
     movesLeftColumn(T, Moves).
-%movesLeftColumn(['_'|T], Moves) :-
+
 movesLeftColumn([EmptySpace|T], Moves) :-
     playerPiece(empty, EmptySpace),
     movesLeftColumn(T, Move1),
@@ -492,7 +495,6 @@ UI BOARD RENDERING SECTION:
 
 % Board Headers:
 boardHeaders(' |1|2|3|4|5|6|7| ').
-boardHeadersWide(' | 1 | 2 | 3 | 4 | 5 | 6 | 7 | ').
 
 % INITIAL BOARD SETUP:
 initBoardFull([
@@ -504,18 +506,6 @@ initBoardFull([
     ['_', '_', '_', '_', '_', '_'],
     ['_', '_', '_', '_', '_', '_']
     ]).
-
-% (Option: wider game board)
-initBoardFullWider([
-    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
-    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
-    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
-    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
-    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
-    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
-    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ ']
-    ]).
-
 
 
 % transpose board to make it easier to print rows
@@ -580,10 +570,10 @@ testBoardRowWinO([
 %testBoardColWinX(B), gameTurn(B, _). %Player1 wins
 %testBoardRowWinO(B), gameTurn(B, _). %Player2 wins
 %
-%testBoardColWinX(B), gameTurnMachine(B, red, ai). %Player1 wins
-%testBoardColWinX(B), gameTurnMachine(B, red, human). %Player1 wins
-%testBoardRowWinO(B), gameTurnMachine(B, red, ai). %AI wins
-%testBoardRowWinO(B), gameTurnMachine(B, red, human). %AI wins
+%testBoardColWinX(B), gameTurnMachine(B, red, ai, hard). %Player1 wins
+%testBoardColWinX(B), gameTurnMachine(B, red, human, hard). %Player1 wins
+%testBoardRowWinO(B), gameTurnMachine(B, red, ai, hard). %AI wins
+%testBoardRowWinO(B), gameTurnMachine(B, red, human, hard). %AI wins
 
 
 % Game Board: x wins, with connected-4 as diagonal (\)
@@ -618,10 +608,10 @@ testBoardDiagWinO([
 %testBoardDiagWinX(B), gameTurn(B, _). %Player1 wins
 %testBoardDiagWinO(B), gameTurn(B, _). %Player2 wins
 
-%testBoardDiagWinX(B), gameTurnMachine(B, red, human). %Player1 wins
-%testBoardDiagWinX(B), gameTurnMachine(B, red, ai). %Player1 wins
-%testBoardDiagWinO(B), gameTurnMachine(B, red, human). %AI wins
-%testBoardDiagWinO(B), gameTurnMachine(B, red, ai). %AI wins
+%testBoardDiagWinX(B), gameTurnMachine(B, red, human, hard). %Player1 wins
+%testBoardDiagWinX(B), gameTurnMachine(B, red, ai, hard). %Player1 wins
+%testBoardDiagWinO(B), gameTurnMachine(B, red, human, hard). %AI wins
+%testBoardDiagWinO(B), gameTurnMachine(B, red, ai, hard). %AI wins
 
 % Game Board: draw; no one wins; filled board
 testBoardIsFullDraw([
@@ -641,8 +631,8 @@ testBoardIsFullDraw([
 %(input these as ?- queries.)
 %testBoardIsFullDraw(B), gameTurn(B, _). %Tie Game
 
-%testBoardIsFullDraw(B), gameTurnMachine(B, red, human). %Tie Game
-%testBoardIsFullDraw(B), gameTurnMachine(B, red, ai). %Tie Game
+%testBoardIsFullDraw(B), gameTurnMachine(B, red, human, hard). %Tie Game
+%testBoardIsFullDraw(B), gameTurnMachine(B, red, ai, hard). %Tie Game
 
 % Game Board: game in progress; no one wins; 
 % half-filled board
@@ -661,5 +651,5 @@ testBoardHalfFull([
 %
 %%CHECKING WIN CONDITIONS LIVE:
 %(input these as ?- queries.)
-%testBoardHalfFull(B), gameTurnMachine(B, red, human).
+%testBoardHalfFull(B), gameTurnMachine(B, red, human, hard).
 %testBoardHalfFull(B), gameTurnMachine(B, red, ai, hard).
