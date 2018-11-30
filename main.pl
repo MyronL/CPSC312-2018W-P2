@@ -261,7 +261,7 @@ play_mode(2) :- print('Playing against AI'),
     nl,
     initBoardFull(B),
     displayBoard(B),
-    gameTurn(B, red, Machine).
+    gameTurnMachine(B, red).
 
 play_mode(_) :-
     print('Good bye'),
@@ -298,7 +298,7 @@ gameTurn(Board, Player) :-
     displayBoard(BoardAfter), %TODO replace for real game board
     flipPlayer(Player, OtherPlayer),
     gameTurn(BoardAfter, OtherPlayer).
-gameTurn(Board, Player, Machine) :-
+gameTurnMachine(Board, Player) :-
     nl,
     write(Player),
     write(' player\'s turn:'),
@@ -312,9 +312,10 @@ gameTurn(Board, Player, Machine) :-
     displayBoard(BoardAfter),
     nl,
     write('Machine\'s turn'),
-    machineTurn(blue, Board, BoardMachine),
+    nl,
+    machineTurn(blue, BoardAfter, BoardMachine),
     displayBoard(BoardMachine),
-    gameTurn(BoardMachine, Player, Machine).
+    gameTurnMachine(BoardMachine, Player).
 
 % Winning Conditions
 win(Board, Player) :- rowWin(Board, Player).
@@ -502,9 +503,6 @@ play_player(Board) :-
 %insert_piece(Board, Colour, Column, BoardX).
 
 
-displayPiece(empty) :- print('-').
-displayPiece(red) :- print('X').
-displayPiece(blue) :- print('O').
 
 exampleBoard :-
     col(1,true,empty,0,[empty,empty,empty,empty,empty,empty]),
@@ -550,14 +548,96 @@ initBoardFull([
     ]).
 
 % TODO
-machineTurn(Player, Board, Board).
+machineTurn(_, Board, Board) :- win(Board, red).
 machineTurn(Player, Board, BoardAfter) :-
     selectMove(Board, 3, Player, Move),
     insertToBoard(Board, Move, Player, BoardAfter).
 
 % Select Move gets best move
 % depth is how far you want to search into a path
-selectMove(Board, Depth, Player, Move).
+selectMove(Board, Depth, Player, Move) :-
+    columnScore(Board, Depth, Player, 1, Score1),
+    columnScore(Board, Depth, Player, 2, Score2),
+    columnScore(Board, Depth, Player, 3, Score3),
+    columnScore(Board, Depth, Player, 4, Score4),
+    columnScore(Board, Depth, Player, 5, Score5),
+    columnScore(Board, Depth, Player, 6, Score6),
+    columnScore(Board, Depth, Player, 7, Score7),
+    selectBestScore([Score1,Score2,Score3,Score4,Score5,Score6,Score7], Move).
+
+
+%columnScore(Board, Depth, Player, Column, Score)
+columnScore(_,0,_,_,0).
+columnScore(Board,_,_,_,0) :- full(Board).
+columnScore(Board,_,_,Column,-42) :- \+ validCpuMove(Board, Column).
+columnScore(Board,_,Player,Column,Score) :-
+    canWin(Board, Player, Column),
+    movesLeft(Board, MovesLeft),
+    Score is ((MovesLeft - 1)//2).
+columnScore(Board, Depth, Player, Column, Score) :-
+    validCpuMove(Board, Column),
+    insertToBoard(Board, Column, Player, BoardAfter),
+    flipPlayer(Player, Player2),
+    Depth1 is Depth-1,
+    columnScore(BoardAfter, Depth1, Player2, 1, S1),
+    columnScore(BoardAfter, Depth1, Player2, 2, S2),
+    columnScore(BoardAfter, Depth1, Player2, 3, S3),
+    columnScore(BoardAfter, Depth1, Player2, 4, S4),
+    columnScore(BoardAfter, Depth1, Player2, 5, S5),
+    columnScore(BoardAfter, Depth1, Player2, 6, S6),
+    columnScore(BoardAfter, Depth1, Player2, 7, S7),
+    selectBestScore([S1,S2,S3,S4,S5,S6,S7], Max),
+    Score is -1 * Max.
+
+validCpuMove(Board, Move) :-
+    integer(Move),
+    Move >= 1,
+    Move =< 7,
+    nth1(Move, Board, (H|_)),
+    H == '_'.
+
+
+selectBestScore(ScoreList, Move) :-
+    selectMax(ScoreList, Max),
+    findBestMove(Move, ScoreList, Max).
+
+
+findBestMove(Index, ScoreList, Score) :-
+    findall(N, nth1(N, ScoreList, Score), Indexes),
+    length(Indexes, Length),
+    Bounds is Length+1,
+    random(1, Bounds, Random),
+    nth1(Random, Indexes, I),
+    Index is I.
+
+selectMax([], -42).
+selectMax([H|T], Max) :-
+    selectMax(T, Max2),
+    Max is max(H,Max2).
+
+selectMin([], 42).
+selectMin([H|T], Min) :-
+    selectMin(T,Min2),
+    Min is min(H,Min2).
+
+movesLeft([], 0).
+movesLeft([H|T], Moves) :-
+    movesLeftColumn(H, Move1),
+    movesLeft(T, Move2),
+    Moves is Move1 + Move2.
+
+movesLeftColumn([], 0).
+movesLeftColumn([H|T], Moves) :-
+    dif(H, '_'),
+    movesLeftColumn(T, Moves).
+movesLeftColumn(['_'|T], Moves) :-
+    movesLeftColumn(T, Move1),
+    Moves is Move1 + 1.
+
+canWin(Board, Player, Column) :- 
+    validCpuMove(Board,Column), 
+    insertToBoard(Board, Column, Player, BoardAfter),
+    win(BoardAfter, Player).
 
 /*
 initBoardExample :- [
