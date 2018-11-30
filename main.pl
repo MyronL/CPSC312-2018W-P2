@@ -400,3 +400,79 @@ displaySquares([H|T]) :-
     write(H),
     write('|'),
     displaySquares(T).
+
+
+
+testBoardColWinX([
+    ['_', '_', '_', '_', '_', 'o'],
+    ['_', '_', 'x', 'x', 'x', 'x'],
+    ['_', '_', '_', '_', '_', 'o'],
+    ['_', '_', '_', '_', 'o', 'o'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_']
+    ]).
+
+testBoardRowWinO([
+    ['_', '_', '_', '_', '_', 'o'],
+    ['_', '_', 'x', 'x', 'x', 'o'],
+    ['_', '_', '_', '_', '_', 'o'],
+    ['_', '_', '_', '_', 'x', 'o'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_']
+    ]).    
+
+%testBoardColWinX(B), win(B, x). %B= matrix from testBoardColWinX
+%testBoardColWinX(B), win(B, o). %false
+%testBoardRowWinO(B), win(B, o). %B= matrix from testBoardRowWinO
+%testBoardColWinO(B), win(B, x). %false
+
+%CHECKING WIN CONDITIONS LIVE:
+%testBoardColWinX(B), gameTurn(B, _). %Player1 wins
+%testBoardRowWinO(B), gameTurn(B, _). %Player2 wins
+
+
+
+testBoardDiagWinX([
+    ['_', '_', 'x', 'o', 'o', 'x'],
+    ['_', '_', '_', 'x', 'o', 'o'],
+    ['_', '_', '_', '_', 'x', 'o'],
+    ['_', '_', '_', '_', '_', 'x'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_']
+    ]).
+
+testBoardDiagWinO([
+    ['_', '_', '_', '_', '_', 'o'],
+    ['_', '_', '_', '_', 'o', 'x'],
+    ['_', '_', '_', 'o', 'x', 'x'],
+    ['_', '_', 'o', 'x', 'x', 'o'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_']
+    ]).
+
+%testBoardDiagWinX(B), win(B, x). %B= matrix from testBoardDiagWinX
+%testBoardDiagWinX(B), win(B, o). %false
+%testBoardDiagWinO(B), win(B, o). %B= matrix from testBoardDiagWinO
+%testBoardDiagWinO(B), win(B, x). %false
+
+%CHECKING WIN CONDITIONS LIVE:
+%testBoardDiagWinX(B), gameTurn(B, _). %Player1 wins
+%testBoardDiagWinO(B), gameTurn(B, _). %Player2 wins
+
+
+testBoardIsFullDraw([
+    ['x', 'x', 'x', 'o', 'o', 'o'],
+    ['x', 'o', 'o', 'x', 'x', 'x'],
+    ['o', 'x', 'x', 'x', 'o', 'o'],
+    ['x', 'x', 'o', 'o', 'x', 'o'],
+    ['o', 'o', 'x', 'o', 'x', 'o'],
+    ['o', 'o', 'x', 'o', 'x', 'x'],
+    ['x', 'x', 'o', 'x', 'o', 'o']
+    ]).
+
+%testBoardIsFullDraw(B), win(B, o). %false
+%testBoardIsFullDraw(B), win(B, x). %false
