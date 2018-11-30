@@ -322,9 +322,9 @@ initBoardFull([
     ]).
 
 % TODO
-machineTurn(_, Board, Board) :- win(Board, red).
+machineTurn(_, Board, Board) :- win(Board, x).
 machineTurn(Player, Board, BoardAfter) :-
-    selectMove(Board, 3, Player, Move),
+    selectMove(Board, 5, Player, Move),
     insertToBoard(Board, Move, Player, BoardAfter).
 
 % Select Move gets best move
@@ -348,6 +348,10 @@ columnScore(Board,_,Player,Column,Score) :-
     canWin(Board, Player, Column),
     movesLeft(Board, MovesLeft),
     Score is ((MovesLeft - 1)//2).
+columnScore(Board,_,_,Column,Score) :-
+    canWin(Board, x, Column),
+    movesLeft(Board, MovesLeft),
+    Score is ((MovesLeft - 1)//2).
 columnScore(Board, Depth, Player, Column, Score) :-
     validCpuMove(Board, Column),
     insertToBoard(Board, Column, Player, BoardAfter),
@@ -368,7 +372,7 @@ validCpuMove(Board, Move) :-
     Move >= 1,
     Move =< 7,
     nth1(Move, Board, (H|_)),
-    H == '_'.
+    H = '_'.
 
 
 selectBestScore(ScoreList, Move) :-
@@ -389,11 +393,6 @@ selectMax([H|T], Max) :-
     selectMax(T, Max2),
     Max is max(H,Max2).
 
-selectMin([], 42).
-selectMin([H|T], Min) :-
-    selectMin(T,Min2),
-    Min is min(H,Min2).
-
 movesLeft([], 0).
 movesLeft([H|T], Moves) :-
     movesLeftColumn(H, Move1),
@@ -410,7 +409,7 @@ movesLeftColumn(['_'|T], Moves) :-
 
 canWin(Board, Player, Column) :-
     validCpuMove(Board,Column),
-    insertToBoard(Board, Column, Player, BoardAfter),
+    insertToBoard(Board, Column, blue, BoardAfter),
     win(BoardAfter, Player).
 
 
