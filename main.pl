@@ -76,7 +76,7 @@ play_mode(_) :-
     print('Good bye'),
     abort.
 
-% GameTurn: 
+% GameTurn Handling: 
 
 % GameTurn: PVP Player 1 wins scenario
 gameTurn(Board, _) :- win(Board, x), 
@@ -201,7 +201,6 @@ getListOfAvailMoves(0, _, ListTotal, ListTotal).
 getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
     nth1(Count,Board,Col),  %get nth col from board
     columnFree(Col),  %incl if col has empties in it
-%    append(Count,ListInit,ListTotal), %incl N if its a col w/ empties in it
     Count1 is Count-1,
     getListOfAvailMoves(Count1, Board, [Count|Acc], ListTotal).
 %CASE: col DOESNT has available move
@@ -247,41 +246,36 @@ getMove(Player, _, ListOfMoves, Board, BoardAfter) :-
 % Helper: check if move is concede input
 isConcede(Move) :- Move == qq.
 
+% ======= ========= ===========
+
+% Updating Board By Player Move: 
 insertToBoard(Board, Move, Player, BoardAfter) :-
     nth1(Move, Board, Col),
     insertColumn(Col, Player, ColNew),
     updateBoard(Board, Move, ColNew, BoardAfter).
 
+% Updating column during Player Move: 
+% CASE: inserting player piece in column top
 insertColumn(['_',X|T], Player, [PlayerPiece, X|T]) :-
     playerPiece(Player, PlayerPiece),
     \+ X == '_'.
+% CASE: inserting FIRST piece in column
 insertColumn(['_'], Player, [PlayerPiece]) :-
     playerPiece(Player, PlayerPiece).
+% CASE: recursive step, skipping present pieces
 insertColumn([H|T], Player, [H|R]) :-
     insertColumn(T, Player, R).
 
-playerPiece(red, x).
-playerPiece(blue, o).
+% Player piece definitions:
+playerPiece(red, x). % Player 1
+playerPiece(blue, o). % Player 2
 playerPiece(empty, _).
 
-updateBoard([_|T], 1, ColNew, [ColNew|T]).
-updateBoard([H|T], Move, ColNew, [H|X]) :- Move1 is Move-1, updateBoard(T, Move1, ColNew, X).
-
-
-displayPiece(empty) :- print('-').
-displayPiece(red) :- print('X').
-displayPiece(blue) :- print('O').
-
-initBoard :- initBoardFull.
-initBoardFull([
-    ['_', '_', '_', '_', '_', '_'],
-    ['_', '_', '_', '_', '_', '_'],
-    ['_', '_', '_', '_', '_', '_'],
-    ['_', '_', '_', '_', '_', '_'],
-    ['_', '_', '_', '_', '_', '_'],
-    ['_', '_', '_', '_', '_', '_'],
-    ['_', '_', '_', '_', '_', '_']
-    ]).
+% Updates board with new column:
+updateBoard([_|T], 1, ColNew, [ColNew|T]). %BASE
+updateBoard([H|T], Move, ColNew, [H|X]) :- 
+    Move1 is Move-1, 
+    updateBoard(T, Move1, ColNew, X). %RECURSIVE
 
 %================ ================ 
 % VS AI GAME HANDLING:
@@ -433,10 +427,38 @@ UI DISPLAY SECTION:
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
+% Board Headers:
+boardHeaders(' |1|2|3|4|5|6|7| ').
+boardHeadersWide(' | 1 | 2 | 3 | 4 | 5 | 6 | 7 | ').
+
+% INITIAL BOARD SETUP:
+initBoardFull([
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_']
+    ]).
+
+% (Option: wider game board)
+initBoardFullWider([
+    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
+    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
+    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
+    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
+    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
+    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
+    [' _ ', ' _ ', ' _ ', ' _ ', ' _ ', ' _ '],
+    ]).
+
+
 
 % display board row by row (?)
 displayBoard(Board) :-
-    write('|1|2|3|4|5|6|7|'),nl,nl,
+    boardHeaders(BH),
+    write(BH),nl,nl,
     transpose(Board, BoardNew),
     displayRows(BoardNew).
 
