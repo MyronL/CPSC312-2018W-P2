@@ -400,7 +400,7 @@ machineTurn(Player, Board, BoardAfter, hard) :-
 % Insane AI
 machineTurn(Player, Board, BoardAfter, insane) :-
     playerPiece(Player, Piece),
-    selectMove(Board, 6, Piece, Move),
+    selectMove(Board, 4, Piece, Move),
     machineMove(Board, Move, Player, BoardAfter).
 
 % Common Helper to facilitate AI moves
