@@ -481,6 +481,8 @@ selectMax([], -42).
 selectMax([H|T], Max) :-
     selectMax(T, Max2),
     Max is max(H,Max2).
+selectMax([_|T], Max) :-
+    selectMax(T, Max).
 
 % Finds how many moves are left on the board
 movesLeft([], 0).
@@ -508,6 +510,57 @@ canWin(Board, Player, Column) :-
     validCpuMove(Board,Column),
     insertToBoard(Board, Column, Player1, BoardAfter),
     win(BoardAfter, Player).
+
+
+
+flipBetType(green, gold).
+flipBetType(gold, green).
+
+gameTurnVegas(Board, _, _, _, _, _) :- win(Board, x), 
+    write('Congratulations Machine 1 (red) Wins!'),
+    nl,
+    littleDelay(S),
+    sleep(S),
+    nl,    
+    play.
+
+% GameTurn: PVP Player 2 wins scenario
+gameTurnVegas(Board, _, _, _, _, _):- win(Board, o), 
+    write('Congratulations Machine 2 (blue) Wins!'),
+    nl,    
+    littleDelay(S),
+    sleep(S),
+    nl,
+    play.
+
+% GameTurn: Draw scenario
+gameTurnVegas(Board, _, _, _, _, _) :- full(Board), write('It\'s a tie!').
+
+% GameTurn: Turn-by-turn scenario:
+gameTurnVegas(Board, Player, ai, AiRedLvl, AIBlueLvl) :-
+    nl,
+    write(Player),
+    write(' Machine\'s turn:'),
+    nl,
+    vegasAILVLMatch(Player, AiRedLvl, AIBlueLvl, Difficulty),
+    machineTurn(Player, Board, BoardMachine, Difficulty),
+%    write('Moves Available:'),
+%    getListOfAvailMoves(Board, ListTotal),
+%    write(ListTotal),
+%    nl,
+%    write('Please select a column. (Or enter qq to quit)'),
+%    nl,
+%    read(Move),
+%    getMove(Player, Move, ListTotal, Board, BoardAfter),
+%    displayBoard(BoardAfter),
+    displayBoard(BoardMachine),
+    flipPlayer(Player, OtherPlayer),
+    gameTurnVegas(BoardMachine, OtherPlayer, ai, AiRedLvl, AIBlueLvl).    
+
+% returns the correct AI lvl for Las Vegas Mode (AI vs AI)
+% use as vegasAILVLMatch(Player, Difficulty).
+vegasAILVLMatch(red, AiRedLvl, _, AiRedLvl).
+vegasAILVLMatch(blue, _, AIBlueLvl, AIBlueLvl).
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
