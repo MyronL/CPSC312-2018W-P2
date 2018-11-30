@@ -21,7 +21,7 @@ superQuickDelay(0.6).
 littleDelay(0.9).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-UI DISPLAY SECTION:
+PLAY SECTION:
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 welcomeScreen :- print('**************************************'),
@@ -322,6 +322,8 @@ initBoardFull([
     ]).
 
 % TODO
+%================ ================ 
+%AI 
 machineTurn(_, Board, Board) :- win(Board, x).
 machineTurn(Player, Board, BoardAfter) :-
     selectMove(Board, 5, Player, Move),
@@ -409,6 +411,12 @@ canWin(Board, Player, Column) :-
     win(BoardAfter, Player).
 
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+UI DISPLAY SECTION:
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+
+
 % display board row by row (?)
 displayBoard(Board) :-
     transpose(Board, BoardNew),
@@ -426,6 +434,12 @@ displaySquares([H|T]) :-
     write(H),
     write('|'),
     displaySquares(T).
+
+
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+TESTING SECTION:
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
 
@@ -520,3 +534,22 @@ testBoardIsFullDraw([
 
 %testBoardIsFullDraw(B), gameTurnMachine(B, red, human). %Tie Game
 %testBoardIsFullDraw(B), gameTurnMachine(B, red, ai). %Tie Game
+
+
+testBoardHalfFull([
+    ['x', 'x', 'x', 'o', 'o', 'o'],
+    ['x', 'o', 'o', 'x', 'x', 'x'],
+    ['o', 'x', 'x', 'x', 'o', 'o'],
+    ['_', '_', '_', 'x', 'x', 'o'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_'],
+    ['_', '_', '_', '_', '_', '_']
+    ]).
+
+%testBoardHalfFull(B), win(B, o). %false
+%testBoardHalfFull(B), win(B, x). %false
+%
+%%CHECKING WIN CONDITIONS LIVE:
+%(input these as ?- queries.)
+%testBoardHalfFull(B), gameTurnMachine(B, red, human).
+%testBoardHalfFull(B), gameTurnMachine(B, red, ai).
