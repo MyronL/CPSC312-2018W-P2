@@ -18,10 +18,7 @@ UI + CONTROLS PLAY SECTION:
 % simply enter ?-play.
 play :- welcomeScreen,
     nl,
-    mainOptionsScreen,
-    nl,
-    read(X),
-    play_mode(X).
+    mainOptionsScreen.
 
 
 %print the initial welcome screen
@@ -49,7 +46,10 @@ mainOptionsScreen :- nl,
     print('Player VS AI [ Enter 2 ]'),
     nl,
     print('Exit [ Enter any other key ]'),
-    nl.
+    nl,
+    nl,
+    read(X),
+    play_mode(X).    
 
 
 % handling for PVP mode when selected:
@@ -68,7 +68,7 @@ play_mode(1) :- print('Playing against your friend'),
 % handling for VS AI mode when selected:
 play_mode(2) :- print('Playing against AI'),
     nl,
-    print('Select difficulty [easy,hard]'),
+    aiLevelOptions,
     read(Difficulty),
     checkInvalidLevel(Valid, Difficulty),
     nl,
@@ -86,6 +86,21 @@ play_mode(2) :- print('Playing against AI'),
 play_mode(_) :-
     print('Good bye'),
     abort.
+
+% Helper: handling for AI difficulty selection
+checkInvalidLevel(D, 4) :- D = insane, write('Ah insane mode I see...'), nl.
+checkInvalidLevel(D, 3) :- D = hard.
+checkInvalidLevel(D, 2) :- D = easy.
+checkInvalidLevel(D, 1) :- D = supereasy.
+checkInvalidLevel(_, _) :- mainOptionsScreen.
+
+
+aiLevelOptions :-
+    write('please enter AI difficulty:'),nl,
+    write('[enter 1]: Super Easy'),nl,
+    write('[enter 2]: Easy'),nl,
+    write('[enter 3]: Hard'),nl,
+    write('[enter anything else]: back to menu'),nl.
 
 % GameTurn Handling: 
 
@@ -135,14 +150,6 @@ flipPlayer(blue, red).
 flipPlayer(p1, p2).
 flipPlayer(p2, p1).
 
-checkInvalidLevel(D, hard) :- D = hard.
-checkInvalidLevel(D, easy) :- D = easy.
-checkInvalidLevel(D, _) :-
-    nl,
-    write('Invalid level, please enter one: [easy, hard]'),
-    nl,
-    read(C),
-    checkInvalidLevel(D, C).
 
 %=============== ============
 % Winning Conditions
@@ -368,9 +375,21 @@ flipPlayerType(ai, human).
 % Winning condition
 machineTurn(_, Board, Board, _) :- win(Board, x).
 
+
+% Super Easy AI (just randomly places pieces lol)
+machineTurn(Player, Board, BoardAfter, supereasy) :-
+    getListOfAvailMoves(Board, ListTotal),
+    length(ListTotal, N),
+    random(1, N, Pick),
+    nth1(Pick, ListTotal, Move),   
+    write('Machine Played '),
+    write(Move),
+    nl,
+    insertToBoard(Board, Move, Player, BoardAfter).
+
 % Easy AI
 machineTurn(Player, Board, BoardAfter, easy) :-
-    selectMove(Board, 1, o, Move),
+    selectMove(Board, 2, o, Move),
     write('Machine Played '),
     write(Move),
     nl,
@@ -379,6 +398,14 @@ machineTurn(Player, Board, BoardAfter, easy) :-
 % Hard AI
 machineTurn(Player, Board, BoardAfter, hard) :-
     selectMove(Board, 4, o, Move),
+    write('Machine Played '),
+    write(Move),
+    nl,
+    insertToBoard(Board, Move, Player, BoardAfter).
+
+% Insane AI
+machineTurn(Player, Board, BoardAfter, insane) :-
+    selectMove(Board, 6, o, Move),
     write('Machine Played '),
     write(Move),
     nl,
