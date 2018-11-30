@@ -71,6 +71,9 @@ play_mode(1) :- print('Playing against your friend'),
 
 play_mode(2) :- print('Playing against AI'),
     nl,
+    print('Select difficulty [easy,hard]'),
+    read(Difficulty),
+    nl,
     print('Ready... 3. 2.. 1...'),
     sleep(0.6),
     nl,
@@ -78,7 +81,7 @@ play_mode(2) :- print('Playing against AI'),
     nl,
     initBoardFull(B),
     displayBoard(B),
-    gameTurnMachine(B, red, human).
+    gameTurnMachine(B, red, human, Difficulty).
 
 play_mode(_) :-
     print('Good bye'),
@@ -186,15 +189,17 @@ full(Board, N) :-
 
 
 
-%USE THIS
+% Prints the full list of moves available, unused currently
 showListTotal([]).
 showListTotal([H|T]) :-
     write(H),
     showListTotal(T).
 
+% Gets the list of available moves on the board
+%
 getListOfAvailMoves(Board, ListTotal) :-
     getListOfAvailMoves(7, Board, [], ListTotal).
-%ENDCASE
+
 getListOfAvailMoves(0, _, ListTotal, ListTotal).
 %CASE: col has available move
 getListOfAvailMoves(Count, Board, Acc, ListTotal) :-
@@ -275,23 +280,26 @@ initBoardFull([
 %================ ================ 
 % VS AI GAME HANDLING:
 
-
-gameTurnMachine(Board, _, _) :- win(Board, x), 
+% Human turn win condition
+gameTurnMachine(Board, _, _, _) :- win(Board, x), 
     write('Congratulations Player 1 Wins!'),
     nl,
     littleDelay(S),
     sleep(S),
     nl,    
     play.
-gameTurnMachine(Board, _, _) :- win(Board, o), 
+% AI turn win condition
+gameTurnMachine(Board, _, _, _) :- win(Board, o), 
     write('Nice try... AI Wins!'),
     nl,
     littleDelay(S),
     sleep(S),
     nl,    
     play.
-gameTurnMachine(Board, _, _) :- full(Board), write('It\'s a tie!').
-gameTurnMachine(Board, Player, human) :-
+% Tie
+gameTurnMachine(Board, _, _, _) :- full(Board), write('It\'s a tie!').
+% Human's turn
+gameTurnMachine(Board, Player, human, Difficulty) :-
     nl,
     write(Player),
     write(' player\'s turn:'),
@@ -303,18 +311,18 @@ gameTurnMachine(Board, Player, human) :-
     read(Move),
     getMove(Player, Move, ListTotal, Board, BoardAfter),
     displayBoard(BoardAfter),
-    gameTurnMachine(BoardAfter, Player, ai).
-
-gameTurnMachine(Board, Player, ai) :-
+    gameTurnMachine(BoardAfter, Player, ai, Difficulty).
+% AI's turn
+gameTurnMachine(Board, Player, ai, Difficulty) :-
     nl,
     write('Machine\'s turn'),
     nl,
     littleDelay(S),
     sleep(S),  %slight delay so user comprehends what AI move is
-    machineTurn(blue, Board, BoardMachine),
+    machineTurn(blue, Board, BoardMachine, Difficulty),
     nl,
     displayBoard(BoardMachine),
-    gameTurnMachine(BoardMachine, Player, human).
+    gameTurnMachine(BoardMachine, Player, human, Difficulty).
 
 
 %Use this for getting opposite player type.
@@ -327,16 +335,28 @@ flipPlayerType(ai, human).
 % TODO
 %================ ================ 
 %AI Version 1
-machineTurn(_, Board, Board) :- win(Board, x).
-machineTurn(Player, Board, BoardAfter) :-
-    selectMove(Board, 5, Player, Move),
+% Initiate machine turn
+% Winning condition
+machineTurn(_, Board, Board, _) :- win(Board, x).
+% Easy AI
+machineTurn(Player, Board, BoardAfter, easy) :-
+    selectMove(Board, 1, o, Move),
+    write('Machine Played '),
+    write(Move),
+    nl,
+    insertToBoard(Board, Move, Player, BoardAfter).
+% Hard AI
+machineTurn(Player, Board, BoardAfter, hard) :-
+    selectMove(Board, 4, o, Move),
     write('Machine Played '),
     write(Move),
     nl,
     insertToBoard(Board, Move, Player, BoardAfter).
 
-% Select Move gets best move
+% Select Move gets best move by searching each column and assigning
+% a score for each move.
 % depth is how far you want to search into a path
+% Player is actually the piece rather than colour
 selectMove(Board, Depth, Player, Move) :-
     columnScore(Board, Depth, Player, 1, Score1),
     columnScore(Board, Depth, Player, 2, Score2),
@@ -348,18 +368,27 @@ selectMove(Board, Depth, Player, Move) :-
     selectBestScore([Score1,Score2,Score3,Score4,Score5,Score6,Score7], Move).
 
 
-%columnScore(Board, Depth, Player, Column, Score)
+% columnScore(Board, Depth, Player, Column, Score)
+% Assigns a score to each column recursively
+% Stop at depth = 0
 columnScore(_,0,_,_,0).
+% When Board is full
 columnScore(Board,_,_,_,0) :- full(Board).
+% When machine finds an invalid move
 columnScore(Board,_,_,Column,-42) :- \+ validCpuMove(Board, Column).
-columnScore(Board,_,_,Column,Score) :-
-    canWin(Board, x, Column),
+% If the opponent is close to winning
+columnScore(Board,_,Player,Column,Score) :-
+    canWin(Board, Player, Column),
     movesLeft(Board, MovesLeft),
     Score is ((MovesLeft - 1)//2).
+% Recurse through each column and path to find the optimum move
+% Blue and Red will alternate every recursion TODO: find a better name
 columnScore(Board, Depth, Player, Column, Score) :-
     validCpuMove(Board, Column),
-    insertToBoard(Board, Column, Player, BoardAfter),
-    flipPlayer(Player, Player2),
+    playerPiece(Blue, Player),
+    insertToBoard(Board, Column, Blue, BoardAfter),
+    flipPlayer(Red, Blue),
+    playerPiece(Red, Player2),
     Depth1 is Depth-1,
     columnScore(BoardAfter, Depth1, Player2, 1, S1),
     columnScore(BoardAfter, Depth1, Player2, 2, S2),
@@ -368,22 +397,23 @@ columnScore(Board, Depth, Player, Column, Score) :-
     columnScore(BoardAfter, Depth1, Player2, 5, S5),
     columnScore(BoardAfter, Depth1, Player2, 6, S6),
     columnScore(BoardAfter, Depth1, Player2, 7, S7),
-    selectBestScore([S1,S2,S3,S4,S5,S6,S7], Max),
+    selectMax([S1,S2,S3,S4,S5,S6,S7], Max),
     Score is -1 * Max.
 
+% Checks if the move is valid for machine
 validCpuMove(Board, Move) :-
     integer(Move),
     Move >= 1,
     Move =< 7,
-    nth1(Move, Board, (H|_)),
+    nth1(Move, Board, [H|_]),
     H = '_'.
 
-
+% Selects the best score by picking the maximum
 selectBestScore(ScoreList, Move) :-
     selectMax(ScoreList, Max),
     findBestMove(Move, ScoreList, Max).
 
-
+% Finds the best move within a list of scores, each index corresponds to a column
 findBestMove(Index, ScoreList, Score) :-
     findall(N, nth1(N, ScoreList, Score), Indexes),
     length(Indexes, Length),
@@ -392,17 +422,20 @@ findBestMove(Index, ScoreList, Score) :-
     nth1(Random, Indexes, I),
     Index is I.
 
+% Selects the maximum
 selectMax([], -42).
 selectMax([H|T], Max) :-
     selectMax(T, Max2),
     Max is max(H,Max2).
 
+% Finds how many moves are left on the board
 movesLeft([], 0).
 movesLeft([H|T], Moves) :-
     movesLeftColumn(H, Move1),
     movesLeft(T, Move2),
     Moves is Move1 + Move2.
 
+% Finds how many moves are left in the column
 movesLeftColumn([], 0).
 movesLeftColumn([H|T], Moves) :-
     dif(H, '_'),
@@ -411,9 +444,12 @@ movesLeftColumn(['_'|T], Moves) :-
     movesLeftColumn(T, Move1),
     Moves is Move1 + 1.
 
+% Checks if the human is within winning range, Player is the piece represented, 
+% Player1 is the colour
 canWin(Board, Player, Column) :-
+    playerPiece(Player1, Player),
     validCpuMove(Board,Column),
-    insertToBoard(Board, Column, blue, BoardAfter),
+    insertToBoard(Board, Column, Player1, BoardAfter),
     win(BoardAfter, Player).
 
 
@@ -423,11 +459,12 @@ UI DISPLAY SECTION:
 
 
 
-% display board row by row (?)
+% transpose board to make it easier to print rows
 displayBoard(Board) :-
     transpose(Board, BoardNew),
     displayRows(BoardNew).
 
+% displays rows
 displayRows([]).
 displayRows([H|T]) :-
     write(' |'),
@@ -435,6 +472,7 @@ displayRows([H|T]) :-
     nl,
     displayRows(T).
 
+% displays each cell in the row
 displaySquares([]).
 displaySquares([H|T]) :-
     write(H),
