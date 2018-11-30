@@ -82,6 +82,7 @@ play_mode(_) :-
 
 gameTurn(Board, _) :- win(Board, x), write('Congratulations Player 1 Wins!').
 gameTurn(Board, _) :- win(Board, o), write('Congratulations Player 2 Wins!').
+gameTurn(Board, _) :- full(Board), write('It\'s a tie!').
 gameTurn(Board, Player) :-
     nl,
     write(Player),
@@ -93,18 +94,14 @@ gameTurn(Board, Player) :-
     nl,
     write('Please select a column. (Or enter qq to quit)'),
     nl,
-    %TODO: display list of available moves here
-    %ONLY list of moves, or concede,
-    % are available to players.
     read(Move),
     getMove(Player, Move, ListTotal, Board, BoardAfter),
-%    userMove(Board, Move, BoardAfter),
-%    insertToBoard(Board, Move, Player, BoardAfter),
-    %displayBoard(BoardAfter),
-    displayBoard(BoardAfter), %TODO replace for real game board
+    displayBoard(BoardAfter),
     flipPlayer(Player, OtherPlayer),
     gameTurn(BoardAfter, OtherPlayer).
 
+gameTurnMachine(Board, _) :- win(Board, x), write('Congratulations Player 1 Wins!').
+gameTurnMachine(Board, _) :- win(Board, o), write('Nice try!').
 gameTurnMachine(Board, Player) :-
     nl,
     write(Player),
@@ -252,16 +249,6 @@ displayPiece(empty) :- print('-').
 displayPiece(red) :- print('X').
 displayPiece(blue) :- print('O').
 
-
-exampleBoard :-
-    col(1,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(2,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(3,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(4,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(5,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(6,true,empty,0,[empty,empty,empty,empty,empty,empty]),
-    col(7,true,empty,0,[empty,empty,empty,empty,empty,empty]).
-
 initBoard :- initBoardFull.
 initBoardFull([
     ['_', '_', '_', '_', '_', '_'],
@@ -360,23 +347,11 @@ movesLeftColumn(['_'|T], Moves) :-
     movesLeftColumn(T, Move1),
     Moves is Move1 + 1.
 
-canWin(Board, Player, Column) :- 
-    validCpuMove(Board,Column), 
+canWin(Board, Player, Column) :-
+    validCpuMove(Board,Column),
     insertToBoard(Board, Column, Player, BoardAfter),
     win(BoardAfter, Player).
 
-displayBoardExample :-
-    write(' |_|_|_|_|_|_|_| '),
-    nl,
-    write(' |_|_|_|_|_|_|_| '),
-    nl,
-    write(' |_|_|_|_|_|_|_| '),
-    nl,
-    write(' |_|_|_|_|_|_|_| '),
-    nl,
-    write(' |_|_|_|_|_|_|_| '),
-    nl,
-    write(' |_|_|_|_|_|_|_| ').
 
 % display board row by row (?)
 displayBoard(Board) :-
