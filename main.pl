@@ -371,7 +371,10 @@ flipPlayerType(ai, human).
 %AI Version 1
 % Initiate machine turn
 % Winning condition
-machineTurn(_, Board, Board, _) :- win(Board, x).
+machineTurn(Player, Board, Board, _) :- 
+    flipPlayer(Player, Player2),
+    playerPiece(Player2, Piece),
+    win(Board, Piece).
 
 
 % Super Easy AI (just randomly places pieces lol)
@@ -384,28 +387,21 @@ machineTurn(Player, Board, BoardAfter, supereasy) :-
 
 % Easy AI
 machineTurn(Player, Board, BoardAfter, easy) :-
-    selectMove(Board, 2, o, Move),
+    playerPiece(Player, Piece),
+    selectMove(Board, 2, Piece, Move),
     machineMove(Board, Move, Player, BoardAfter).
 
 % Hard AI
 machineTurn(Player, Board, BoardAfter, hard) :-
-    selectMove(Board, 4, o, Move),
-    write('Machine Played '),
-    write(Move),
-    superQuickDelay(S),
-    sleep(S),  %slight delay so user comprehends what AI move is    
-    nl,
-    insertToBoard(Board, Move, Player, BoardAfter).
+    playerPiece(Player, Piece),
+    selectMove(Board, 4, Piece, Move),
+    machineMove(Board, Move, Player, BoardAfter).
 
 % Insane AI
 machineTurn(Player, Board, BoardAfter, insane) :-
-    selectMove(Board, 6, o, Move),
-    write('Machine Played '),
-    write(Move),
-    superQuickDelay(S),
-    sleep(S),  %slight delay so user comprehends what AI move is    
-    nl,
-    insertToBoard(Board, Move, Player, BoardAfter).
+    playerPiece(Player, Piece),
+    selectMove(Board, 6, Piece, Move),
+    machineMove(Board, Move, Player, BoardAfter).
 
 % Common Helper to facilitate AI moves
 machineMove(Board, Move, Player, BoardAfter) :-
@@ -520,7 +516,7 @@ canWin(Board, Player, Column) :-
 flipBetType(green, gold).
 flipBetType(gold, green).
 
-gameTurnVegas(Board, _, _, _, _, _) :- win(Board, x), 
+gameTurnVegas(Board, _, _, _, _) :- win(Board, x), 
     write('Congratulations Machine 1 (red) Wins!'),
     nl,
     littleDelay(S),
@@ -529,7 +525,7 @@ gameTurnVegas(Board, _, _, _, _, _) :- win(Board, x),
     play.
 
 % GameTurn: PVP Player 2 wins scenario
-gameTurnVegas(Board, _, _, _, _, _):- win(Board, o), 
+gameTurnVegas(Board, _, _, _, _):- win(Board, o), 
     write('Congratulations Machine 2 (blue) Wins!'),
     nl,    
     littleDelay(S),
@@ -538,7 +534,7 @@ gameTurnVegas(Board, _, _, _, _, _):- win(Board, o),
     play.
 
 % GameTurn: Draw scenario
-gameTurnVegas(Board, _, _, _, _, _) :- full(Board), write('It\'s a tie!').
+gameTurnVegas(Board, _, _, _, _) :- full(Board), write('It\'s a tie!').
 
 % GameTurn: Turn-by-turn scenario:
 gameTurnVegas(Board, Player, ai, AiRedLvl, AIBlueLvl) :-
